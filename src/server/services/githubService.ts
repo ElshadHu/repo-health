@@ -1,9 +1,12 @@
 import { Octokit } from "@octokit/rest";
 import { cacheService } from "@/lib/redis";
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+// Create Octokit instance with optional access token
+const createOctokit = (accessToken?: string | null) => {
+  return new Octokit({
+    auth: accessToken || process.env.GITHUB_TOKEN,
+  });
+};
 
 const CACHE_TTL = {
   REPO_INFO: 3600, // 1 hour
@@ -17,8 +20,8 @@ export const githubService = {
   /**
    * Get repository basic information
    */
-  async getRepoInfo(owner: string, repo: string) {
-    const cacheKey = `repo:info:${owner}:${repo}`;
+  async getRepoInfo(owner: string, repo: string, accessToken?: string | null) {
+    const cacheKey = `repo:info:${owner}:${repo}${accessToken ? ":auth" : ""}`;
     const cached = await cacheService.get<{
       name: string;
       owner: string;
@@ -31,37 +34,66 @@ export const githubService = {
       defaultBranch: string;
       createdAt: string;
       updatedAt: string;
+      isPrivate: boolean;
     }>(cacheKey);
-    if (cached) return cached;
 
-    const { data } = await octokit.rest.repos.get({
-      owner,
-      repo,
-    });
+    // Check cached data for private repos without auth
+    if (cached) {
+      if (cached.isPrivate && !accessToken) {
+        throw new Error("PRIVATE_REPO_REQUIRES_AUTH");
+      }
+      return cached;
+    }
 
-    const result = {
-      name: data.name,
-      owner: data.owner.login,
-      description: data.description,
-      url: data.html_url,
-      stars: data.stargazers_count,
-      forks: data.forks_count,
-      language: data.language,
-      openIssues: data.open_issues_count,
-      defaultBranch: data.default_branch,
-      createdAt: data.created_at,
-      updatedAt: data.updated_at,
-    };
+    const octokit = createOctokit(accessToken);
 
-    await cacheService.set(cacheKey, result, CACHE_TTL.REPO_INFO);
-    return result;
+    try {
+      const { data } = await octokit.rest.repos.get({
+        owner,
+        repo,
+      });
+
+      // Check if repo is private BEFORE processing data
+      // If repo is private but user is not authenticated, throw an error
+      if (data.private && !accessToken) {
+        throw new Error("PRIVATE_REPO_REQUIRES_AUTH");
+      }
+
+      const result = {
+        name: data.name,
+        owner: data.owner.login,
+        description: data.description,
+        url: data.html_url,
+        stars: data.stargazers_count,
+        forks: data.forks_count,
+        language: data.language,
+        openIssues: data.open_issues_count,
+        defaultBranch: data.default_branch,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        isPrivate: data.private,
+      };
+
+      await cacheService.set(cacheKey, result, CACHE_TTL.REPO_INFO);
+      return result;
+    } catch (error: any) {
+      if (error.status === 404) {
+        throw new Error("REPO_NOT_FOUND_OR_PRIVATE");
+      }
+      if (error.message === "PRIVATE_REPO_REQUIRES_AUTH") {
+        throw error;
+      }
+      // Re-throw other errors
+      throw error;
+    }
   },
 
   /**
    * Get commits from the last 90 days
    */
-  async getCommits(owner: string, repo: string) {
-    const cacheKey = `repo:commits:${owner}:${repo}`;
+  async getCommits(owner: string, repo: string, accessToken?: string | null) {
+    const octokit = createOctokit(accessToken);
+    const cacheKey = `repo:commits:${owner}:${repo}${accessToken ? ":auth" : ""}`;
     const cached = await cacheService.get<
       {
         sha: string;
@@ -99,8 +131,13 @@ export const githubService = {
   /**
    * Get top contributors
    */
-  async getContributors(owner: string, repo: string) {
-    const cacheKey = `repo:contributors:${owner}:${repo}`;
+  async getContributors(
+    owner: string,
+    repo: string,
+    accessToken?: string | null
+  ) {
+    const octokit = createOctokit(accessToken);
+    const cacheKey = `repo:contributors:${owner}:${repo}${accessToken ? ":auth" : ""}`;
     const cached = await cacheService.get<
       {
         username: string | undefined;
@@ -131,8 +168,9 @@ export const githubService = {
   /**
    * Get language breakdown
    */
-  async getLanguages(owner: string, repo: string) {
-    const cacheKey = `repo:languages:${owner}:${repo}`;
+  async getLanguages(owner: string, repo: string, accessToken?: string | null) {
+    const octokit = createOctokit(accessToken);
+    const cacheKey = `repo:languages:${owner}:${repo}${accessToken ? ":auth" : ""}`;
     const cached = await cacheService.get<Record<string, number>>(cacheKey);
     if (cached) return cached;
 
@@ -148,8 +186,13 @@ export const githubService = {
   /**
    * Check for community health files (README, LICENSE, etc.)
    */
-  async getCommunityHealth(owner: string, repo: string) {
-    const cacheKey = `repo:community:${owner}:${repo}`;
+  async getCommunityHealth(
+    owner: string,
+    repo: string,
+    accessToken?: string | null
+  ) {
+    const octokit = createOctokit(accessToken);
+    const cacheKey = `repo:community:${owner}:${repo}${accessToken ? ":auth" : ""}`;
     const cached = await cacheService.get<{
       hasReadme: boolean;
       hasLicense: boolean;
@@ -177,14 +220,19 @@ export const githubService = {
       return result;
     } catch (error) {
       // If endpoint fails, try manual checks
-      return await this.checkCommunityFilesManually(owner, repo);
+      return await this.checkCommunityFilesManually(owner, repo, accessToken);
     }
   },
 
   /**
    * Fallback: manually check for community files
    */
-  async checkCommunityFilesManually(owner: string, repo: string) {
+  async checkCommunityFilesManually(
+    owner: string,
+    repo: string,
+    accessToken?: string | null
+  ) {
+    const octokit = createOctokit(accessToken);
     const filesToCheck = [
       "README.md",
       "LICENSE",
@@ -216,7 +264,8 @@ export const githubService = {
   /**
    * Get GitHub API rate limit status
    */
-  async getRateLimitStatus() {
+  async getRateLimitStatus(accessToken?: string | null) {
+    const octokit = createOctokit(accessToken);
     const { data } = await octokit.rest.rateLimit.get();
     return {
       limit: data.rate.limit,
