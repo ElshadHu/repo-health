@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -11,11 +11,21 @@ import {
   HStack,
   Badge,
   Spinner,
+  createToaster,
+  Toaster,
 } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import { trpc } from "@/trpc/client";
 import { RepoSearchInput } from "@/components/repoInput";
+import { AuthButton } from "@/components/AuthButton";
+
+const toaster = createToaster({
+  placement: "top",
+  duration: 5000,
+});
 
 export default function HomePage() {
+  const { data: session, status } = useSession();
   const [searchParams, setSearchParams] = useState<{
     owner: string;
     repo: string;
@@ -27,6 +37,17 @@ export default function HomePage() {
       enabled: searchParams !== null,
     }
   );
+
+  // Show toast for  errors
+  useEffect(() => {
+    if (error) {
+      toaster.create({
+        title: "Error",
+        description: error.message,
+        type: "error",
+      });
+    }
+  }, [error]);
 
   const handleSearch = (owner: string, repo: string) => {
     setSearchParams({ owner, repo });
@@ -40,8 +61,10 @@ export default function HomePage() {
     >
       <Container maxW="container.xl">
         <VStack gap={10} align="stretch">
-          {/* Hero Section */}
           <Box textAlign="center" py={8}>
+            <HStack justify="flex-end" mb={4}>
+              <AuthButton />
+            </HStack>
             <Heading
               size="6xl"
               mb={4}
@@ -57,29 +80,27 @@ export default function HomePage() {
             </Text>
           </Box>
 
-          {/* Search Input */}
           <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
             <RepoSearchInput onSearch={handleSearch} isLoading={isLoading} />
           </Box>
 
-          {/* Error State */}
-          {error && (
-            <Box
-              p={6}
-              bg="red.50"
-              borderRadius="xl"
-              borderLeft="4px solid"
-              borderColor="red.500"
-              boxShadow="lg"
-            >
-              <Text fontWeight="bold" color="red.800" mb={2}>
-                Error
-              </Text>
-              <Text color="red.700">{error.message}</Text>
-            </Box>
-          )}
+          <Toaster toaster={toaster}>
+            {(toast) => (
+              <Box
+                bg={toast.type === "error" ? "red.500" : "green.500"}
+                color="white"
+                p={4}
+                borderRadius="md"
+                boxShadow="lg"
+              >
+                <Text fontWeight="bold">{toast.title}</Text>
+                {toast.description && (
+                  <Text fontSize="sm">{toast.description}</Text>
+                )}
+              </Box>
+            )}
+          </Toaster>
 
-          {/* Loading State */}
           {isLoading && (
             <Box
               bg="white"
@@ -94,11 +115,8 @@ export default function HomePage() {
               </Text>
             </Box>
           )}
-
-          {/* Results */}
           {data && !isLoading && (
             <VStack gap={6} align="stretch">
-              {/* Repository Header Card */}
               <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
                 <HStack justify="space-between" align="start" mb={4}>
                   <Box>
@@ -124,7 +142,6 @@ export default function HomePage() {
                 </HStack>
               </Box>
 
-              {/* Stats Grid */}
               <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
                 <StatCard
                   label="Stars"
@@ -152,7 +169,6 @@ export default function HomePage() {
                 />
               </SimpleGrid>
 
-              {/* Commit Activity Card */}
               {data.activity?.commits && data.activity.commits.length > 0 && (
                 <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
                   <Heading size="xl" mb={4} color="gray.800">
@@ -188,7 +204,6 @@ export default function HomePage() {
                 </Box>
               )}
 
-              {/* Contributors Card */}
               {data.contributors && data.contributors.length > 0 && (
                 <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
                   <Heading size="xl" mb={6} color="gray.800">
@@ -216,7 +231,6 @@ export default function HomePage() {
                 </Box>
               )}
 
-              {/* Languages Card */}
               {data.languages && Object.keys(data.languages).length > 0 && (
                 <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
                   <Heading size="xl" mb={6} color="gray.800">
