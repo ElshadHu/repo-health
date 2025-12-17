@@ -5,7 +5,6 @@ const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-// Cache TTL: 1 hour for most data, 5 minutes for rate limit sensitive calls
 const CACHE_TTL = {
   REPO_INFO: 3600, // 1 hour
   COMMITS: 1800, // 30 minutes
@@ -63,7 +62,15 @@ export const githubService = {
    */
   async getCommits(owner: string, repo: string) {
     const cacheKey = `repo:commits:${owner}:${repo}`;
-    const cached = await cacheService.get(cacheKey);
+    const cached = await cacheService.get<
+      {
+        sha: string;
+        message: string;
+        author: string;
+        date: string;
+        url: string;
+      }[]
+    >(cacheKey);
     if (cached) return cached;
 
     const ninetyDaysAgo = new Date();
@@ -94,7 +101,14 @@ export const githubService = {
    */
   async getContributors(owner: string, repo: string) {
     const cacheKey = `repo:contributors:${owner}:${repo}`;
-    const cached = await cacheService.get(cacheKey);
+    const cached = await cacheService.get<
+      {
+        username: string | undefined;
+        avatarUrl: string;
+        contributions: number;
+        url: string | undefined;
+      }[]
+    >(cacheKey);
     if (cached) return cached;
 
     const { data } = await octokit.rest.repos.listContributors({
@@ -119,7 +133,7 @@ export const githubService = {
    */
   async getLanguages(owner: string, repo: string) {
     const cacheKey = `repo:languages:${owner}:${repo}`;
-    const cached = await cacheService.get(cacheKey);
+    const cached = await cacheService.get<Record<string, number>>(cacheKey);
     if (cached) return cached;
 
     const { data } = await octokit.rest.repos.listLanguages({
@@ -136,7 +150,13 @@ export const githubService = {
    */
   async getCommunityHealth(owner: string, repo: string) {
     const cacheKey = `repo:community:${owner}:${repo}`;
-    const cached = await cacheService.get(cacheKey);
+    const cached = await cacheService.get<{
+      hasReadme: boolean;
+      hasLicense: boolean;
+      hasContributing: boolean;
+      hasCodeOfConduct: boolean;
+      healthPercentage: number;
+    }>(cacheKey);
     if (cached) return cached;
 
     try {
