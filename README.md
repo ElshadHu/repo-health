@@ -2,6 +2,23 @@
 
 A tool for tracking code quality changes across commits. Helps identify which changes impact codebase health and understand contributor impact on code quality over time.
 
+## Why I'm Building This
+
+I was drinking my coffee this morning thinking about a problem I keep running into: **I waste too much time on open source projects that aren't worth it.**
+
+I open GitHub, search by language, click "recently updated" - but that's deceiving. Some projects are "recently updated" by bots or typo fixes but haven't had real activity in months. I spend hours reading documentation, struggling with dependencies, only to realize the project is abandoned or the maintainers don't respond.
+
+Based on this problem, I decided to go this way:
+
+- **Health Score (0-100)** - Is this project actually active and maintained?
+- **Dependency Analysis** - How many dependencies? How complex is the setup?
+- **Time Estimations** - How long will it take to set up and build?
+- **Community Reports** - Is this a welcoming community or toxic environment?
+
+See [ROADMAP.md](./ROADMAP.md) for the full implementation plan.
+
+---
+
 ## Purpose
 
 This project aims to help developers improve code quality by providing commit-level insights. Instead of just seeing current metrics, you can track how quality evolves, identify problematic commits, and understand which contributions improve the codebase versus those that degrade it.
@@ -15,9 +32,10 @@ Phase 1 is complete. The foundation is built with modern tools and proper archit
 - Next.js 16 with App Router for server-side rendering
 - End-to-end type safety using tRPC
 - Redis caching to stay within GitHub API limits
-- Chakra UI for the interface
+- Chakra UI for the interface (GitHub dark theme)
 - Zod for input validation
 - Prisma ORM with MySQL for data persistence
+- GitHub OAuth for private repository access
 
 ## Project Structure
 
@@ -30,8 +48,16 @@ src/
 │   └── api/trpc/          # tRPC HTTP handler
 │
 ├── components/             # Reusable UI components
+│   ├── PageHeader.tsx     # Header with auth button
+│   ├── LoadingState.tsx   # Loading spinner
+│   ├── AuthButton.tsx     # GitHub sign in/out
 │   ├── repoInput.tsx      # Repository search input
-│   └── Footer.tsx         # Footer component
+│   └── cards/             # Display cards
+│       ├── RepositoryCard.tsx
+│       ├── StatCard.tsx
+│       ├── CommitListCard.tsx
+│       ├── ContributorCard.tsx
+│       └── LanguageCard.tsx
 │
 ├── trpc/                   # tRPC configuration
 │   ├── init.ts            # tRPC initialization and context
@@ -46,7 +72,8 @@ src/
 │
 └── lib/                    # Shared utilities
     ├── prisma.ts          # Prisma client
-    └── redis.ts           # Redis client and cache service
+    ├── redis.ts           # Redis client and cache service
+    └── auth.ts            # NextAuth configuration
 ```
 
 ### How It Works
@@ -68,7 +95,6 @@ src/
 - Next.js 16
 - React 19
 - Chakra UI
-- tRPC React Query
 
 **Backend**
 
@@ -88,7 +114,7 @@ src/
 That is how I am seeing the request flow how it works
 
 ```
-User Input -> Frontend Validation -> tRPC Client -> tRPC Router -> Input Validation (Zod) ->GitHub Service -> Check Redis Cache -> Cache Miss → GitHub API Call -> Store in Cache -> Save Metadata -> MySQL (Prisma) ->
+User Input -> Frontend Validation -> tRPC Client -> tRPC Router -> Input Validation (Zod) -> GitHub Service -> Check Redis Cache -> Cache Miss → GitHub API Call -> Store in Cache -> Save Metadata -> MySQL (Prisma) ->
 Return Data -> Frontend -> Display Cards
 ```
 
@@ -102,46 +128,50 @@ Return Data -> Frontend -> Display Cards
 - GitHub API integration with Octokit
 - Redis caching layer
 - Input validation with Zod
-- Chakra UI design system
+- Chakra UI design system (GitHub dark theme)
 - Server-side rendering
-- GitHub token support
+- GitHub OAuth authentication
+- Component extraction for maintainability
 
-### Phase 2: Authentication and Private Repos (Next)
+### Phase 2: Core Analysis (Next)
 
-- GitHub OAuth integration
-- User authentication system
-- Session management
-- Private repository access
-- Per-user GitHub tokens and rate limits
+- Health Score Algorithm (0-100 weighted score)
+- Dependency Analysis (package.json, requirements.txt, go.mod, CMakeLists.txt)
+- Setup Time Estimation
+- Build Time Estimation (compiled languages)
 
-### Phase 3: Analysis Engine
+### Phase 3: Community Features
 
-- Commit-by-commit analysis
-- Code quality metrics algorithm ( I got no idea, I will figure it out)
-- Track changes over time
-- Contributor ranking by code quality impact (I got no idea, it requires sufferring a bit :) )
-- Identify commits that degrade quality ( Same here, requires sufferring :) )
+- Community Reports system
+- Admin verification panel
+- Contributor rankings enhancement
 
-After this Phase, I will have at least something that works which I can make it better and Also, definitely I need to tests and deploy the product.
+### Phase 4: Polish & Deploy
+
+- Test cases
+- Deployment
+- More package managers
 
 ## Current Features
 
 - Repository search for public GitHub repos
+- Private repository access with GitHub OAuth
 - Key metrics: stars, forks, commits (90 days), open issues
 - Top contributors list
 - Language breakdown
 - Recent commit activity
 - Redis caching for fast repeated queries
+- GitHub dark theme UI
 
 ## Planned Features
 
-- GitHub OAuth for private repository access
-- Commit-level quality analysis
-- Code quality trends over time
-- Contributor impact rankings
-- Quality degradation detection
-- Interactive charts and visualizations
-- Webhook support for real-time analysis
+See [ROADMAP.md](./ROADMAP.md) for detailed implementation plan.
+
+- Health Score (0-100)
+- Dependency complexity analysis
+- Setup and build time estimations
+- Community reports with admin verification
+- Package vulnerability/severity analysis
 
 ## Development Philosophy
 
