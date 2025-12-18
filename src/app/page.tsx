@@ -10,17 +10,16 @@ import {
   SimpleGrid,
   HStack,
   Badge,
-  Spinner,
   createToaster,
   Toaster,
 } from "@chakra-ui/react";
 import { useSession, signIn } from "next-auth/react";
 import { trpc } from "@/trpc/client";
 import { RepoSearchInput } from "@/components/repoInput";
-import { AuthButton } from "@/components/AuthButton";
 import { StatCard } from "@/components/cards/StatCard";
 import { PageHeader } from "@/components/PageHeader";
 import { LoadingState } from "@/components/LoadingState";
+import { RepositoryCard } from "@/components/cards/RepositoryCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -29,7 +28,7 @@ const toaster = createToaster({
 });
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [searchParams, setSearchParams] = useState<{
     owner: string;
     repo: string;
@@ -49,11 +48,16 @@ export default function HomePage() {
     if (error && searchAttempt > 0) {
       // Use setTimeout to avoid flushSync error
       setTimeout(() => {
+        const isNotAuthenticated = status === "unauthenticated";
+        const errorMessage = isNotAuthenticated
+          ? "Repository not found. It might be private - sign in to access private repositories."
+          : "Repository not found or you don't have access to it.";
+
         toaster.create({
           title: "Error",
-          description: error.message,
+          description: errorMessage,
           type: "error",
-          action: !session
+          action: isNotAuthenticated
             ? {
                 label: "Sign in",
                 onClick: () => signIn("github"),
@@ -62,7 +66,7 @@ export default function HomePage() {
         });
       }, 0);
     }
-  }, [searchAttempt, error, session]);
+  }, [searchAttempt, error, status]);
 
   const handleSearch = (owner: string, repo: string) => {
     setSearchParams({ owner, repo });
@@ -99,30 +103,11 @@ export default function HomePage() {
           {isLoading && <LoadingState />}
           {data && !isLoading && (
             <VStack gap={6} align="stretch">
-              <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
-                <HStack justify="space-between" align="start" mb={4}>
-                  <Box>
-                    <Heading size="3xl" mb={2} color="gray.800">
-                      {data.repository.name}
-                    </Heading>
-                    <Text color="gray.600" fontSize="lg" mb={4}>
-                      {data.repository.description ||
-                        "No description available"}
-                    </Text>
-                    {data.repository.language && (
-                      <Badge
-                        colorPalette="purple"
-                        variant="subtle"
-                        px={3}
-                        py={1}
-                        borderRadius="full"
-                      >
-                        {data.repository.language}
-                      </Badge>
-                    )}
-                  </Box>
-                </HStack>
-              </Box>
+              <RepositoryCard
+                name={data.repository.name}
+                description={data.repository.description}
+                language={data.repository.language}
+              />
 
               <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
                 <StatCard
