@@ -1,7 +1,7 @@
 import { RepoInfo, Commit, Contributor, CommunityHealth } from "../types";
 
 // Scoring Weights
-const WEIGHTS = {
+export const WEIGHTS = {
   ACTIVITY: 0.3,
   MAINTENANCE: 0.25,
   COMMUNITY: 0.2,
@@ -94,5 +94,3 @@ export function calculateDocumentationScore(
   if (community.hasCodeOfConduct) score += DOCS.CODE_OF_CONDUCT;
   return score;
 }
-
-export { WEIGHTS };
