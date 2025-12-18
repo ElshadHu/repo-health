@@ -14,10 +14,11 @@ import {
   createToaster,
   Toaster,
 } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { trpc } from "@/trpc/client";
 import { RepoSearchInput } from "@/components/repoInput";
 import { AuthButton } from "@/components/AuthButton";
+import { StatCard } from "@/components/cards/StatCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -50,10 +51,16 @@ export default function HomePage() {
           title: "Error",
           description: error.message,
           type: "error",
+          action: !session
+            ? {
+                label: "Sign in",
+                onClick: () => signIn("github"),
+              }
+            : undefined,
         });
       }, 0);
     }
-  }, [searchAttempt, error]);
+  }, [searchAttempt, error, session]);
 
   const handleSearch = (owner: string, repo: string) => {
     setSearchParams({ owner, repo });
@@ -153,25 +160,21 @@ export default function HomePage() {
                 <StatCard
                   label="Stars"
                   value={data.repository.stars?.toLocaleString() || "0"}
-                  gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                   icon="⭐"
                 />
                 <StatCard
                   label="Forks"
                   value={data.repository.forks?.toLocaleString() || "0"}
-                  gradient="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
                   icon="🔱"
                 />
                 <StatCard
                   label="Commits (90d)"
                   value={data.activity?.commits?.length.toLocaleString() || "0"}
-                  gradient="linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
                   icon="📝"
                 />
                 <StatCard
                   label="Open Issues"
                   value={data.repository.openIssues?.toLocaleString() || "0"}
-                  gradient="linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
                   icon="🐛"
                 />
               </SimpleGrid>
@@ -274,53 +277,5 @@ export default function HomePage() {
         </VStack>
       </Container>
     </Box>
-  );
-}
-
-// Helper Components
-function StatCard({
-  label,
-  value,
-  gradient,
-  icon,
-}: {
-  label: string;
-  value: string;
-  gradient: string;
-  icon: string;
-}) {
-  return (
-    <Box
-      bg={gradient}
-      p={6}
-      borderRadius="xl"
-      boxShadow="xl"
-      color="white"
-      transition="all 0.3s"
-      _hover={{ transform: "translateY(-4px)", boxShadow: "2xl" }}
-    >
-      <Text fontSize="3xl" mb={2}>
-        {icon}
-      </Text>
-      <Text fontSize="3xl" fontWeight="bold" mb={1}>
-        {value}
-      </Text>
-      <Text fontSize="sm" opacity={0.9}>
-        {label}
-      </Text>
-    </Box>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string | number }) {
-  return (
-    <HStack justify="space-between" p={3} bg="gray.50" borderRadius="md">
-      <Text color="gray.600" fontWeight="medium">
-        {label}
-      </Text>
-      <Text color="gray.800" fontWeight="bold">
-        {value}
-      </Text>
-    </HStack>
   );
 }
