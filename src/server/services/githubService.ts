@@ -22,20 +22,28 @@ export const githubService = {
    */
   async getRepoInfo(owner: string, repo: string, accessToken?: string | null) {
     const cacheKey = `repo:info:${owner}:${repo}${accessToken ? ":auth" : ""}`;
-    const cached = await cacheService.get<{
-      name: string;
-      owner: string;
-      description: string | null;
-      url: string;
-      stars: number;
-      forks: number;
-      language: string | null;
-      openIssues: number;
-      defaultBranch: string;
-      createdAt: string;
-      updatedAt: string;
-      isPrivate: boolean;
-    }>(cacheKey);
+    const cached = await cacheService.get<
+      | {
+          name: string;
+          owner: string;
+          description: string | null;
+          url: string;
+          stars: number;
+          forks: number;
+          language: string | null;
+          openIssues: number;
+          defaultBranch: string;
+          createdAt: string;
+          updatedAt: string;
+          isPrivate: boolean;
+        }
+      | { error: string }
+    >(cacheKey);
+
+    // Check for cached errors (404/private)
+    if (cached && "error" in cached) {
+      throw new Error(cached.error);
+    }
 
     // Check cached data for private repos without auth
     if (cached) {
@@ -78,9 +86,21 @@ export const githubService = {
       return result;
     } catch (error: any) {
       if (error.status === 404) {
+        // Cache 404 errors for 5 minutes to avoid repeated API calls
+        await cacheService.set(
+          cacheKey,
+          { error: "REPO_NOT_FOUND_OR_PRIVATE" },
+          300
+        );
         throw new Error("REPO_NOT_FOUND_OR_PRIVATE");
       }
       if (error.message === "PRIVATE_REPO_REQUIRES_AUTH") {
+        // Cache private repo errors for 5 minutes
+        await cacheService.set(
+          cacheKey,
+          { error: "PRIVATE_REPO_REQUIRES_AUTH" },
+          300
+        );
         throw error;
       }
       // Re-throw other errors
