@@ -4,12 +4,9 @@ import { useState, useEffect } from "react";
 import {
   Box,
   Container,
-  Heading,
   VStack,
-  Text,
   SimpleGrid,
-  HStack,
-  Badge,
+  Text,
   createToaster,
   Toaster,
 } from "@chakra-ui/react";
@@ -20,6 +17,9 @@ import { StatCard } from "@/components/cards/StatCard";
 import { PageHeader } from "@/components/PageHeader";
 import { LoadingState } from "@/components/LoadingState";
 import { RepositoryCard } from "@/components/cards/RepositoryCard";
+import { CommitListCard } from "@/components/cards/CommitListCard";
+import { ContributorCard } from "@/components/cards/ContributorCard";
+import { LanguageCard } from "@/components/cards/LanguageCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -133,97 +133,15 @@ export default function HomePage() {
               </SimpleGrid>
 
               {data.activity?.commits && data.activity.commits.length > 0 && (
-                <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
-                  <Heading size="xl" mb={4} color="gray.800">
-                    📊 Recent Commits (Last 90 Days)
-                  </Heading>
-                  <VStack gap={3} align="stretch">
-                    {data.activity.commits.slice(0, 5).map((commit: any) => (
-                      <Box
-                        key={commit.sha}
-                        p={4}
-                        bg="gray.50"
-                        borderRadius="lg"
-                        borderLeft="4px solid"
-                        borderColor="blue.400"
-                      >
-                        <Text
-                          fontWeight="bold"
-                          color="gray.800"
-                          fontSize="sm"
-                          mb={1}
-                        >
-                          {commit.message.split("\n")[0]}
-                        </Text>
-                        <HStack gap={4} fontSize="xs" color="gray.600">
-                          <Text>👤 {commit.author}</Text>
-                          <Text>
-                            📅 {new Date(commit.date).toLocaleDateString()}
-                          </Text>
-                        </HStack>
-                      </Box>
-                    ))}
-                  </VStack>
-                </Box>
+                <CommitListCard commits={data.activity.commits} />
               )}
 
               {data.contributors && data.contributors.length > 0 && (
-                <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
-                  <Heading size="xl" mb={6} color="gray.800">
-                    👥 Top Contributors
-                  </Heading>
-                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={4}>
-                    {data.contributors.slice(0, 6).map((contributor: any) => (
-                      <Box
-                        key={contributor.username}
-                        p={4}
-                        bg="gray.50"
-                        borderRadius="lg"
-                        borderLeft="4px solid"
-                        borderColor="purple.400"
-                      >
-                        <Text fontWeight="bold" color="gray.800">
-                          {contributor.username}
-                        </Text>
-                        <Text fontSize="sm" color="gray.600">
-                          {contributor.contributions} contributions
-                        </Text>
-                      </Box>
-                    ))}
-                  </SimpleGrid>
-                </Box>
+                <ContributorCard contributors={data.contributors} />
               )}
 
               {data.languages && Object.keys(data.languages).length > 0 && (
-                <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
-                  <Heading size="xl" mb={6} color="gray.800">
-                    💻 Languages
-                  </Heading>
-                  <HStack gap={3} flexWrap="wrap">
-                    {Object.entries(data.languages).map(
-                      ([lang, bytes]: [string, any]) => {
-                        const total = Object.values(data.languages).reduce(
-                          (a: number, b: any) => a + b,
-                          0
-                        ) as number;
-                        const percentage = ((bytes / total) * 100).toFixed(1);
-                        return (
-                          <Badge
-                            key={lang}
-                            colorPalette="blue"
-                            variant="solid"
-                            px={4}
-                            py={2}
-                            borderRadius="full"
-                            fontSize="md"
-                          >
-                            {lang} ({percentage}%)
-                          </Badge>
-                        );
-                      }
-                    )}
-                  </HStack>
-                </Box>
+                <LanguageCard languages={data.languages} />
               )}
             </VStack>
           )}
