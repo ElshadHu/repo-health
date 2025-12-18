@@ -55,9 +55,9 @@ export default function HomePage() {
           type: "error",
           action: !session
             ? {
-              label: "Sign in",
-              onClick: () => signIn("github"),
-            }
+                label: "Sign in",
+                onClick: () => signIn("github"),
+              }
             : undefined,
         });
       }, 0);
@@ -70,11 +70,7 @@ export default function HomePage() {
   };
 
   return (
-    <Box
-      bg="#0d1117"
-      minH="100vh"
-      py={12}
-    >
+    <Box bg="#0d1117" minH="100vh" py={12}>
       <Container maxW="container.xl">
         <VStack gap={10} align="stretch">
           <PageHeader />
