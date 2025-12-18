@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, publicProcedure } from "../../trpc/init";
 import { githubService } from "../services/githubService";
 import { prisma } from "../../lib/prisma";
+import { calculateHealthScore } from "../services/healthScore";
 
 export const githubRouter = router({
   // firstly I need to get simple repo info
@@ -124,6 +125,30 @@ export const githubRouter = router({
           languages,
           communityHealth,
         };
+      } catch (error: any) {
+        if (
+          error.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
+          error.message === "PRIVATE_REPO_REQUIRES_AUTH"
+        ) {
+          throw new Error(
+            "Repository is either private or does not exist. Please sign in to access private repositories."
+          );
+        }
+        throw error;
+      }
+    }),
+
+  getHealthScore: publicProcedure
+    .input(
+      z.object({
+        owner: z.string(),
+        repo: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const accessToken = ctx.session?.accessToken;
+      try {
+        return await calculateHealthScore(input.owner, input.repo, accessToken);
       } catch (error: any) {
         if (
           error.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
