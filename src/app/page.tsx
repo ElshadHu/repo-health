@@ -20,6 +20,7 @@ import { RepositoryCard } from "@/components/cards/RepositoryCard";
 import { CommitListCard } from "@/components/cards/CommitListCard";
 import { ContributorCard } from "@/components/cards/ContributorCard";
 import { LanguageCard } from "@/components/cards/LanguageCard";
+import { HealthScoreCircle } from "@/components/cards/HealthScoreCircle";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -43,6 +44,13 @@ export default function HomePage() {
       staleTime: 0,
     }
   );
+
+  const { data: healthScore, isLoading: isHealthLoading } =
+    trpc.github.getHealthScore.useQuery(searchParams!, {
+      enabled: searchParams !== null,
+      retry: false,
+      staleTime: 1000 * 60 * 5, // 5 min client cache
+    });
 
   useEffect(() => {
     if (error && searchAttempt > 0) {
@@ -108,6 +116,32 @@ export default function HomePage() {
                 description={data.repository.description}
                 language={data.repository.language}
               />
+
+              {isHealthLoading ? (
+                <Box
+                  bg="#161b22"
+                  border="1px solid #30363d"
+                  p={6}
+                  borderRadius="lg"
+                  textAlign="center"
+                >
+                  <Text color="#8b949e">Loading health score...</Text>
+                </Box>
+              ) : (
+                healthScore && (
+                  <Box
+                    bg="#161b22"
+                    border="1px solid #30363d"
+                    p={6}
+                    borderRadius="lg"
+                  >
+                    <HealthScoreCircle
+                      score={healthScore.overallScore}
+                      breakdown={healthScore.breakdown}
+                    />
+                  </Box>
+                )
+              )}
 
               <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
                 <StatCard
