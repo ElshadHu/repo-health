@@ -1,14 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Input, Button, HStack, VStack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Input,
+  Button,
+  HStack,
+  VStack,
+  Text,
+  IconButton,
+} from "@chakra-ui/react";
+import { FaTimes } from "react-icons/fa";
 
 interface RepoSearchInputProps {
   onSearch: (owner: string, repo: string) => void;
   isLoading?: boolean;
+  onClear?: () => void;
 }
 
-export function RepoSearchInput({ onSearch, isLoading }: RepoSearchInputProps) {
+export function RepoSearchInput({
+  onSearch,
+  onClear,
+  isLoading,
+}: RepoSearchInputProps) {
   const [repoUrl, setRepoUrl] = useState("");
   const [error, setError] = useState("");
   const parseGitHubUrl = (url: string) => {
@@ -35,6 +49,12 @@ export function RepoSearchInput({ onSearch, isLoading }: RepoSearchInputProps) {
     }
     onSearch(parsed.owner, parsed.repo);
   };
+
+  const handleClear = () => {
+    setRepoUrl("");
+    setError("");
+    onClear?.();
+  };
   return (
     <Box as="form" onSubmit={handleSubmit}>
       <VStack gap={4} align="stretch">
@@ -59,12 +79,25 @@ export function RepoSearchInput({ onSearch, isLoading }: RepoSearchInputProps) {
             borderColor="gray.300"
             _placeholder={{ color: "gray.400" }}
           />
+          {/* Clear Button  which shows when there's next */}
+          {repoUrl && (
+            <IconButton
+              aria-label="Clear input"
+              onClick={handleClear}
+              size="lg"
+              variant="ghost"
+              colorPalette="gray"
+            >
+              <FaTimes />
+            </IconButton>
+          )}
           <Button
             type="submit"
             colorPalette="blue"
             size="lg"
             loading={isLoading}
             px={8}
+            _active={{ transform: "scale(0.95)" }}
           >
             {isLoading ? "Analyzing..." : "Analyze"}
           </Button>
