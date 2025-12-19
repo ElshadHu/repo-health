@@ -21,6 +21,7 @@ import { CommitListCard } from "@/components/cards/CommitListCard";
 import { ContributorCard } from "@/components/cards/ContributorCard";
 import { LanguageCard } from "@/components/cards/LanguageCard";
 import { HealthScoreCircle } from "@/components/cards/HealthScoreCircle";
+import { DependencySummaryCard } from "@/components/cards/DependencySummaryCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -36,7 +37,7 @@ export default function HomePage() {
   } | null>(null);
   const [searchAttempt, setSearchAttempt] = useState(0);
 
-  const { data, isLoading, error } = trpc.github.getCompleteAnalysis.useQuery(
+  const { data, isLoading, error } = trpc.repo.getCompleteAnalysis.useQuery(
     searchParams!,
     {
       enabled: searchParams !== null,
@@ -46,7 +47,14 @@ export default function HomePage() {
   );
 
   const { data: healthScore, isLoading: isHealthLoading } =
-    trpc.github.getHealthScore.useQuery(searchParams!, {
+    trpc.health.getScore.useQuery(searchParams!, {
+      enabled: searchParams !== null,
+      retry: false,
+      staleTime: 1000 * 60 * 5, // 5 min client cache
+    });
+
+  const { data: dependencies, isLoading: isDepsLoading } =
+    trpc.dependency.analyze.useQuery(searchParams!, {
       enabled: searchParams !== null,
       retry: false,
       staleTime: 1000 * 60 * 5, // 5 min client cache
@@ -140,6 +148,28 @@ export default function HomePage() {
                       breakdown={healthScore.breakdown}
                     />
                   </Box>
+                )
+              )}
+
+              {/* Dependencies Card */}
+              {isDepsLoading ? (
+                <Box
+                  bg="#161b22"
+                  border="1px solid #30363d"
+                  p={6}
+                  borderRadius="lg"
+                  textAlign="center"
+                >
+                  <Text color="#8b949e">Scanning dependencies...</Text>
+                </Box>
+              ) : (
+                dependencies &&
+                searchParams && (
+                  <DependencySummaryCard
+                    summary={dependencies.summary}
+                    owner={searchParams.owner}
+                    repo={searchParams.repo}
+                  />
                 )
               )}
 
