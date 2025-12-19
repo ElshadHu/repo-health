@@ -54,3 +54,29 @@ export type HealthScore = {
     documentationScore: number;
   };
 };
+
+export type Vulnerability = {
+  id: string;
+  severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  summary: string;
+  fixedVersion?: string;
+};
+
+export type DependencyInfo = {
+  name: string;
+  version: string;
+  vulnerabilities: Vulnerability[];
+};
+
+export type DependenciesResult = {
+  dependencies: DependencyInfo[];
+  devDependencies: DependencyInfo[];
+  summary: {
+    total: number;
+    vulnerable: number;
+    critical: number;
+    high: number;
+    moderate: number;
+    low: number;
+  };
+};

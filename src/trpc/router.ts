@@ -1,6 +1,12 @@
 import { router } from "./init";
-import { githubRouter } from "../server/routers/githubRouter";
+import { repoRouter } from "../server/routers/repoRouter";
+import { healthRouter } from "../server/routers/healthRouter";
+import { dependencyRouter } from "../server/routers/dependencyRouter";
+
 export const appRouter = router({
-  github: githubRouter,
+  repo: repoRouter,
+  health: healthRouter,
+  dependency: dependencyRouter,
 });
+
 export type AppRouter = typeof appRouter;
