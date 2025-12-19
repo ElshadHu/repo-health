@@ -1,4 +1,4 @@
-import { githubService } from "./githubService";
+import { githubService } from "./github";
 import { cacheService } from "@/lib/redis";
 import { HealthScore } from "../types";
 import {
