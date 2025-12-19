@@ -1,0 +1,98 @@
+import { cacheService } from "@/lib/redis";
+import { RepoInfo } from "../../types";
+import { createOctokit, CACHE_TTL } from "./shared";
+
+export async function getRepoInfo(
+  owner: string,
+  repo: string,
+  accessToken?: string | null
+): Promise<RepoInfo> {
+  const cacheKey = `repo:info:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const cached = await cacheService.get<RepoInfo | { error: string }>(cacheKey);
+
+  // Check for cached errors (404/private)
+  if (cached && "error" in cached) {
+    throw new Error(cached.error);
+  }
+
+  // Check cached data for private repos without auth
+  if (cached) {
+    if (cached.isPrivate && !accessToken) {
+      throw new Error("PRIVATE_REPO_REQUIRES_AUTH");
+    }
+    return cached;
+  }
+
+  const octokit = createOctokit(accessToken);
+
+  try {
+    const { data } = await octokit.rest.repos.get({
+      owner,
+      repo,
+    });
+
+    // Check if repo is private BEFORE processing data
+    // If repo is private but user is not authenticated, throw an error
+    if (data.private && !accessToken) {
+      throw new Error("PRIVATE_REPO_REQUIRES_AUTH");
+    }
+
+    const result = {
+      name: data.name,
+      owner: data.owner.login,
+      description: data.description,
+      url: data.html_url,
+      stars: data.stargazers_count,
+      forks: data.forks_count,
+      language: data.language,
+      openIssues: data.open_issues_count,
+      defaultBranch: data.default_branch,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
+      isPrivate: data.private,
+    };
+
+    await cacheService.set(cacheKey, result, CACHE_TTL.REPO_INFO);
+    return result;
+  } catch (error: any) {
+    if (error.status === 404) {
+      // Cache 404 errors for 5 minutes to avoid repeated API calls
+      await cacheService.set(
+        cacheKey,
+        { error: "REPO_NOT_FOUND_OR_PRIVATE" },
+        300
+      );
+      throw new Error("REPO_NOT_FOUND_OR_PRIVATE");
+    }
+    if (error.message === "PRIVATE_REPO_REQUIRES_AUTH") {
+      // Cache private repo errors for 5 minutes
+      await cacheService.set(
+        cacheKey,
+        { error: "PRIVATE_REPO_REQUIRES_AUTH" },
+        300
+      );
+      throw error;
+    }
+    // Re-throw other errors
+    throw error;
+  }
+}
+
+export async function getLanguages(
+  owner: string,
+  repo: string,
+  accessToken?: string | null
+) {
+  const octokit = createOctokit(accessToken);
+  const cacheKey = `repo:languages:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const cached = await cacheService.get<Record<string, number>>(cacheKey);
+  if (cached) return cached;
+
+  const { data } = await octokit.rest.repos.listLanguages({
+    owner,
+    repo,
+  });
+
+  await cacheService.set(cacheKey, data, CACHE_TTL.LANGUAGES);
+  return data;
+}
