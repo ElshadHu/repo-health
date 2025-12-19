@@ -80,3 +80,21 @@ export type DependenciesResult = {
     low: number;
   };
 };
+
+export type RelatedPRs = {
+  repo: string;
+  prNumber: number;
+  title: string;
+  url: string;
+  status: "merged" | "open" | "closed";
+  mergedAt: string;
+};
+
+export type IssueCheckResult = {
+  exists: boolean;
+  url?: string;
+  title?: string;
+  state?: "open" | "closed";
+};
+
+export type Ecosystem = "npm" | "PyPI" | "Go" | "crates.io" | "Maven";
