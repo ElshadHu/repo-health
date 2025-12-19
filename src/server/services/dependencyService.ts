@@ -9,7 +9,6 @@ import type {
 const OSV_API = "https://api.osv.dev/v1/querybatch";
 const CACHE_TTL = {
   OSV: 7 * 24 * 60 * 60,
-  COMMUNITY_PRS: 24 * 60 * 60,
 };
 
 function cleanVersion(version: string): string {
@@ -161,4 +160,6 @@ async function analyze(
 
 export const dependencyService = {
   analyze,
+  searchRelatedPRs: githubService.searchRelatedPRs,
+  checkIssueExists: githubService.checkIssueExists,
 };
