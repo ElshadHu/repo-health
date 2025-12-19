@@ -16,4 +16,25 @@ export const dependencyRouter = router({
       accessToken
     );
   }),
+  getRelatedPRs: publicProcedure
+    .input(z.object({ vulnId: z.string() }))
+    .query(async ({ input }) => {
+      return await dependencyService.searchRelatedPRs(input.vulnId);
+    }),
+
+  checkIssueExists: publicProcedure
+    .input(
+      z.object({
+        owner: z.string(),
+        repo: z.string(),
+        vulnId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await dependencyService.checkIssueExists(
+        input.owner,
+        input.repo,
+        input.vulnId
+      );
+    }),
 });
