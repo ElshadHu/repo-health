@@ -97,4 +97,4 @@ export type IssueCheckResult = {
   state?: "open" | "closed";
 };
 
-export type Ecosystem = "npm" | "PyPI" | "Go" | "crates.io" | "Maven";
+export type Ecosystem = "npm" | "PyPI" | "Go" | "crates.io" | "Conan" | "NuGet";
