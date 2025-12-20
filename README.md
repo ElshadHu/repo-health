@@ -64,29 +64,28 @@ src/
 
 Analyze pull request patterns and community contributor behavior.
 
-| Metric                  | Description                               | Data Source       |
-| ----------------------- | ----------------------------------------- | ----------------- |
-| Total PRs               | Open, closed, and merged counts           | GitHub Pulls API  |
-| Merge Time              | Average and median time to merge          | PR timestamps     |
-| Author Breakdown        | Maintainers vs Community vs Bots          | author_association |
-| AI Reviewer Detection   | Comments from CodeRabbit, Dependabot, etc | Issue/Review comments |
-| Contributor Journey     | First-time → Returning → Regular → Core   | PR author history |
-
+| Metric                | Description                               | Data Source           |
+| --------------------- | ----------------------------------------- | --------------------- |
+| Total PRs             | Open, closed, and merged counts           | GitHub Pulls API      |
+| Merge Time            | Average and median time to merge          | PR timestamps         |
+| Author Breakdown      | Maintainers vs Community vs Bots          | author_association    |
+| AI Reviewer Detection | Comments from CodeRabbit, Dependabot, etc | Issue/Review comments |
+| Contributor Journey   | First-time → Returning → Regular → Core   | PR author history     |
 
 ### AI Bots Detected
 
-| Bot Name          | Type           |
-| ----------------- | -------------- |
-| coderabbitai[bot] | Code Review    |
-| dependabot[bot]   | Dependency     |
-| renovate[bot]     | Dependency     |
-| github-actions[bot] | CI/CD        |
+| Bot Name            | Type        |
+| ------------------- | ----------- |
+| coderabbitai[bot]   | Code Review |
+| dependabot[bot]     | Dependency  |
+| renovate[bot]       | Dependency  |
+| github-actions[bot] | CI/CD       |
 
 ---
 
 ## Roadmap Progress
 
-### Completed (~75%)
+### Completed (~80%)
 
 - [x] Next.js + tRPC + Prisma setup
 - [x] GitHub API integration with caching
@@ -98,6 +97,7 @@ Analyze pull request patterns and community contributor behavior.
 - [x] **PR Analytics** - Merge times, author breakdown, AI detection
 - [x] **Contributor Journey** - Sankey diagram visualization
 - [x] **AI Interaction Tracking** - Community wrestling with AI reviews
+- [x] **Search History** - Save searches for logged-in users, autocomplete with Fuse.js
 
 ### In Progress (~15%)
 
