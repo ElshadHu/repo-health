@@ -65,6 +65,7 @@ model User {
   sessions      Session[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  searchHistory SearchHistory[]
 }
 
 // OAuth account linkage 
@@ -105,4 +106,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model SearchHistory {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  owner String  // repo owner 
+  repo String
+  fullName String
+  searchedAt DateTime @default(now())
+
+  @@index([userId, searchedAt])
+  @@unique([userId, owner, repo]) // Prevent duplicates , upsert instead 
 }
