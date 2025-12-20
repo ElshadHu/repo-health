@@ -9,10 +9,12 @@ import {
   Text,
   createToaster,
   Toaster,
+  Flex,
 } from "@chakra-ui/react";
 import { useSession, signIn } from "next-auth/react";
 import { trpc } from "@/trpc/client";
 import { RepoSearchInput } from "@/components/repoInput";
+import { RecentSearches } from "@/components/RecentSearches";
 import { StatCard } from "@/components/cards/StatCard";
 import { PageHeader } from "@/components/PageHeader";
 import { LoadingState } from "@/components/LoadingState";
@@ -47,6 +49,15 @@ export default function HomePage() {
     }
   );
 
+  const isSignedIn = status === "authenticated";
+  const { data: recentSearches, isLoading: isRecentLoading } =
+    trpc.user.getRecentSearches.useQuery(undefined, {
+      enabled: isSignedIn,
+      staleTime: 1000 * 60,
+    });
+
+  const saveSearchMutation = trpc.user.saveSearch.useMutation();
+
   const { data: healthScore, isLoading: isHealthLoading } =
     trpc.health.getScore.useQuery(searchParams!, {
       enabled: searchParams !== null,
@@ -67,7 +78,6 @@ export default function HomePage() {
 
   useEffect(() => {
     if (error && searchAttempt > 0) {
-      // Use setTimeout to avoid flushSync error
       setTimeout(() => {
         const isNotAuthenticated = status === "unauthenticated";
         const errorMessage = isNotAuthenticated
@@ -92,6 +102,10 @@ export default function HomePage() {
   const handleSearch = (owner: string, repo: string) => {
     setSearchParams({ owner, repo });
     setSearchAttempt((prev) => prev + 1);
+
+    if (isSignedIn) {
+      saveSearchMutation.mutate({ owner, repo });
+    }
   };
 
   return (
@@ -100,9 +114,37 @@ export default function HomePage() {
         <VStack gap={10} align="stretch">
           <PageHeader />
 
-          <Box bg="white" p={8} borderRadius="2xl" boxShadow="2xl">
-            <RepoSearchInput onSearch={handleSearch} isLoading={isLoading} />
-          </Box>
+          <Flex
+            bg="white"
+            p={8}
+            borderRadius="2xl"
+            boxShadow="2xl"
+            gap={6}
+            direction={{ base: "column", md: "row" }}
+          >
+            {/* Search Input - 60% width on desktop */}
+            <Box flex={{ base: "1", md: "0.6" }}>
+              <RepoSearchInput onSearch={handleSearch} isLoading={isLoading} />
+            </Box>
+
+            {/* Recent Searches - 40% width on desktop */}
+            {isSignedIn && (
+              <Box
+                flex={{ base: "1", md: "0.4" }}
+                borderLeft={{ base: "none", md: "1px solid" }}
+                borderTop={{ base: "1px solid", md: "none" }}
+                borderColor="gray.200"
+                pt={{ base: 4, md: 0 }}
+                pl={{ base: 0, md: 6 }}
+              >
+                <RecentSearches
+                  searches={recentSearches || []}
+                  onSelect={handleSearch}
+                  isLoading={isRecentLoading}
+                />
+              </Box>
+            )}
+          </Flex>
 
           <Toaster toaster={toaster}>
             {(toast) => (
