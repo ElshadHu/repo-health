@@ -22,6 +22,7 @@ import { ContributorCard } from "@/components/cards/ContributorCard";
 import { LanguageCard } from "@/components/cards/LanguageCard";
 import { HealthScoreCircle } from "@/components/cards/HealthScoreCircle";
 import { DependencySummaryCard } from "@/components/cards/DependencySummaryCard";
+import { PRStatsCard } from "@/components/cards/PRStatsCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -52,6 +53,10 @@ export default function HomePage() {
       retry: false,
       staleTime: 1000 * 60 * 5, // 5 min client cache
     });
+  const { data: prStats, isLoading: isPRLoading } = trpc.pr.getStats.useQuery(
+    searchParams!,
+    { enabled: searchParams !== null, retry: false, staleTime: 1000 * 60 * 5 }
+  );
 
   const { data: dependencies, isLoading: isDepsLoading } =
     trpc.dependency.analyze.useQuery(searchParams!, {
@@ -150,8 +155,6 @@ export default function HomePage() {
                   </Box>
                 )
               )}
-
-              {/* Dependencies Card */}
               {isDepsLoading ? (
                 <Box
                   bg="#161b22"
@@ -163,14 +166,22 @@ export default function HomePage() {
                   <Text color="#8b949e">Scanning dependencies...</Text>
                 </Box>
               ) : (
-                dependencies &&
-                searchParams && (
-                  <DependencySummaryCard
-                    summary={dependencies.summary}
-                    owner={searchParams.owner}
-                    repo={searchParams.repo}
-                  />
-                )
+                <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+                  {dependencies && searchParams && (
+                    <DependencySummaryCard
+                      summary={dependencies.summary}
+                      owner={searchParams.owner}
+                      repo={searchParams.repo}
+                    />
+                  )}
+                  {prStats && searchParams && (
+                    <PRStatsCard
+                      stats={prStats}
+                      owner={searchParams.owner}
+                      repo={searchParams.repo}
+                    />
+                  )}
+                </SimpleGrid>
               )}
 
               <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
