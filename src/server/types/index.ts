@@ -1,7 +1,3 @@
-// GitHub API response types used across services
-
-import { NumberInputLabelProps } from "@chakra-ui/react";
-
 export type RepoInfo = {
   name: string;
   owner: string;
@@ -140,19 +136,6 @@ export type PRStats = {
   aiInteractionStats?: AIInteractionStats;
 };
 
-export type ResponseTimeCell = {
-  day: string;
-  hour: number;
-  avgResponseHours: number;
-  count: number;
-};
-
-export type ResponseTimeHeatmap = {
-  cells: ResponseTimeCell[];
-  fastThreshold: number; // hours - below this is green
-  slowThreshold: number; // hours - above this is red
-};
-
 export type ContributorFunnel = {
   firstTime: number; // Contributors with 1 PR
   secondContribution: number; // Contributors with 2 PRs
@@ -172,4 +155,79 @@ export type AIInteractionStats = {
   avgWrestlingTimeHours: number; // Time from AI comment to next human commit
   prsWithAIReviews: number;
   bots: AIBotStats[];
+};
+
+// Issue Analysis Types
+export type IssueInfo = {
+  number: number;
+  title: string;
+  body: string | null;
+  state: "open" | "closed";
+  url: string;
+  author: string;
+  authorAvatar: string | null;
+  labels: string[];
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string | null;
+  commentsCount: number;
+  reactions: number;
+  assignees: string[];
+  milestone: string | null;
+  isPullRequest: boolean;
+};
+
+export type CrackabilityScore = {
+  overall: number; // 1-100
+  difficulty: "easy" | "medium" | "hard" | "expert";
+  estimatedHours: number;
+  factors: {
+    documentationQuality: number; // 0-25
+    codebaseScope: number; // 0-25
+    testingRequired: number; // 0-25
+    dependencyComplexity: number; // 0-25
+  };
+  filesLikelyTouched: string[];
+  reasoning: string;
+};
+
+export type IssuePathway = {
+  level: "beginner" | "intermediate" | "advanced";
+  topic: string;
+  issues: { number: number; title: string; url: string }[];
+};
+
+export type HiddenGem = {
+  number: number;
+  title: string;
+  url: string;
+  reason: string;
+  impactScore: number;
+  engagementScore: number;
+  staleDays: number;
+};
+
+export type HotIssue = {
+  number: number;
+  title: string;
+  url: string;
+  hotScore: number;
+  recentComments: number;
+  recentReactions: number;
+  hasSecurityKeyword: boolean;
+};
+
+export type IssueStats = {
+  total: number;
+  open: number;
+  closed: number;
+  avgCloseTimeHours: number;
+  medianCloseTimeHours: number;
+  issues: IssueInfo[];
+  crackabilityScores: Record<number, CrackabilityScore>;
+  pathways: IssuePathway[];
+  hiddenGems: HiddenGem[];
+  hotIssues: HotIssue[];
+  goodFirstIssues: number;
+  helpWantedIssues: number;
 };
