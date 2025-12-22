@@ -27,6 +27,7 @@ import { DependencySummaryCard } from "@/components/cards/DependencySummaryCard"
 import { PRStatsCard } from "@/components/cards/PRStatsCard";
 import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
 import { SecurityCard } from "@/components/cards/SecurityCard";
+import { ActivityCard } from "@/components/anomaly/ActivityCard";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -234,6 +235,12 @@ export default function HomePage() {
                   )}
                   {searchParams && (
                     <SecurityCard
+                      owner={searchParams.owner}
+                      repo={searchParams.repo}
+                    />
+                  )}
+                  {searchParams && (
+                    <ActivityCard
                       owner={searchParams.owner}
                       repo={searchParams.repo}
                     />
