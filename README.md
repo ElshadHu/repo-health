@@ -7,6 +7,8 @@ A tool for analyzing GitHub repository health, identifying vulnerable dependenci
 - **Health Score (0-100)** - Activity, maintenance, community, and documentation scores
 - **Dependency Analysis** - Scan for vulnerable packages across multiple ecosystems
 - **PR Analytics** - Merge times, author breakdown, AI reviewer detection
+- **Issue Analytics** - Crackability scores, hidden gems, hot issues
+- **Security Scanner** - Detect exposed secrets with 22 patterns + entropy analysis
 - **Contributor Journey** - Visualize first-time → returning → core contributor flow
 - **Related PRs** - Find community fixes for vulnerabilities
 - **GitHub OAuth** - Access private repositories
@@ -50,7 +52,12 @@ src/
 │   │   ├── github/          # GitHub API
 │   │   ├── deps/            # Dependency analysis
 │   │   ├── prs/             # PR analysis
-│   │   │   └── analyze.ts   # PR service
+│   │   ├── issues/          # Issue analysis
+│   │   ├── security/        # Secret scanner
+│   │   │   ├── patterns.ts  # 22 regex patterns
+│   │   │   ├── entropy.ts   # Shannon entropy
+│   │   │   ├── masker.ts    # Secret masking
+│   │   │   └── scanner.ts   # Main logic
 │   │   ├── healthScore.ts   # Score calculation
 │   │   └── calculations.ts  # Algorithms
 │   └── types/               # TypeScript types
@@ -98,6 +105,8 @@ Analyze pull request patterns and community contributor behavior.
 - [x] **Contributor Journey** - Sankey diagram visualization
 - [x] **AI Interaction Tracking** - Community wrestling with AI reviews
 - [x] **Search History** - Save searches for logged-in users, autocomplete with Fuse.js
+- [x] **Issue Analytics** - Crackability scores, hidden gems, hot issues
+- [x] **Security Scanner** - Detect exposed secrets with 22 regex patterns + entropy analysis
 
 ### In Progress (~15%)
 
@@ -107,12 +116,112 @@ Analyze pull request patterns and community contributor behavior.
 
 ### Planned (~10%)
 
-- [ ] **Issues Analysis** - Find related issues, track issue patterns
 - [ ] **Discussions Analysis** - Community engagement metrics
 - [ ] Community reports system
 - [ ] Setup time estimation
 - [ ] More languages (Java/Maven, PHP/Composer)
 - [ ] Historical trend charts
+
+---
+
+## Issue Analytics
+
+Analyze repository issues to find contribution opportunities and assess maintainer responsiveness.
+
+| Metric             | Description                  | Calculation                        |
+| ------------------ | ---------------------------- | ---------------------------------- |
+| Crackability Score | How approachable an issue is | Labels + length + age + reactions  |
+| Hidden Gems        | Overlooked high-value issues | High reactions + old + no assignee |
+| Hot Issues         | Active discussions           | Comments > 5 + recent activity     |
+| Issue Pathways     | Journey from open → closed   | State transitions + timing         |
+
+### Crackability Score Algorithm
+
+```
+Score = (labelScore × 0.3) + (lengthScore × 0.2) + (ageScore × 0.2) + (reactionScore × 0.3)
+```
+
+| Factor                   | Score | Condition     |
+| ------------------------ | ----- | ------------- |
+| `good first issue` label | +30   | Label present |
+| `help wanted` label      | +20   | Label present |
+| Short description        | +20   | < 500 chars   |
+| Old issue                | -10   | > 90 days     |
+| High reactions           | +15   | > 5 reactions |
+
+### Difficulty Grades
+
+| Grade  | Score Range | Meaning                 |
+| ------ | ----------- | ----------------------- |
+| Easy   | 70-100      | Good for first-timers   |
+| Medium | 50-69       | Some experience needed  |
+| Hard   | 30-49       | Complex issue           |
+| Expert | 0-29        | Deep knowledge required |
+
+---
+
+## Security Scanner
+
+Detect exposed secrets (API keys, tokens, passwords) in public repositories.
+
+**Note:** I'm exploring how secret detection works. It may show false positives (like Slack invite URLs being flagged as secrets). This is just informational and meant for potential issues.
+
+### Detection Methods
+
+| Method          | Description                          | Source                                                      |
+| --------------- | ------------------------------------ | ----------------------------------------------------------- |
+| Regex Patterns  | 22 patterns for known secret formats | [Gitleaks](https://github.com/gitleaks/gitleaks)            |
+| Shannon Entropy | Detect high-randomness strings       | [TruffleHog](https://github.com/trufflesecurity/trufflehog) |
+| Masking         | Never expose full secrets            | OWASP Guidelines                                            |
+
+### Secret Patterns Detected
+
+| Category     | Examples                      | Severity |
+| ------------ | ----------------------------- | -------- |
+| AWS          | `AKIA...`, Secret Access Key  | Critical |
+| GitHub       | `ghp_`, `gho_`, `ghs_` tokens | High     |
+| Stripe       | `sk_live_`, `pk_live_`        | Critical |
+| Google Cloud | `AIza...`, Service Account    | High     |
+| Private Keys | RSA, OpenSSH, EC              | Critical |
+| Database     | MongoDB URI, PostgreSQL URI   | High     |
+| Generic      | Passwords, API keys, tokens   | Medium   |
+
+### Entropy Detection
+
+Shannon entropy measures string randomness:
+
+```
+H(X) = -Σ p(x) × log₂(p(x))
+```
+
+| Entropy   | Interpretation  |
+| --------- | --------------- |
+| < 3.0     | Normal text     |
+| 3.0 - 4.0 | Possibly random |
+| > 4.5     | Likely a secret |
+
+### Security Score
+
+```
+Score = 100 - Σ(severityPenalty)
+```
+
+| Severity | Penalty |
+| -------- | ------- |
+| Critical | -25     |
+| High     | -15     |
+| Medium   | -8      |
+| Low      | -3      |
+
+### Security Grades
+
+| Grade | Score  | Meaning            |
+| ----- | ------ | ------------------ |
+| A     | 90-100 | Clean              |
+| B     | 75-89  | Minor issues       |
+| C     | 60-74  | Needs attention    |
+| D     | 40-59  | Significant issues |
+| F     | 0-39   | Critical problems  |
 
 ---
 
