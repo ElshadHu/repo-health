@@ -21,6 +21,12 @@ export type Commit = {
   url: string;
 };
 
+export type CommitWithStats = Commit & {
+  additions: number;
+  deletions: number;
+  files: string[];
+};
+
 export type Contributor = {
   username: string | undefined;
   avatarUrl: string | undefined;
