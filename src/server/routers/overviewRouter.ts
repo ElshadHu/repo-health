@@ -6,7 +6,9 @@ import {
   filterImportantFiles,
   fetchKeyFiles,
   analyzeArchitecture,
+  mapIssuesToFiles,
 } from "../services/overview";
+import * as issueservice from "../services/issues/analyze";
 
 export const overviewRouter = router({
   analyze: publicProcedure
@@ -29,12 +31,23 @@ export const overviewRouter = router({
         owner,
         repo
       );
+      const issueStats = await issueservice.analyze({
+        owner,
+        repo,
+        token: ctx.session?.accessToken,
+      });
+      const fileIssueMap = await mapIssuesToFiles({
+        issues: issueStats.issues,
+        fileTree: importantFiles,
+        repoInfo: { owner, repo },
+      });
 
       return {
         analysis,
         fileTree: importantFiles,
         fileCount: allFiles.length,
         totalSize: allFiles.reduce((sum, f) => sum + (f.size || 0), 0),
+        fileIssueMap,
       };
     }),
 });
