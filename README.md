@@ -10,6 +10,7 @@ A tool for analyzing GitHub repository health, identifying vulnerable dependenci
 - **Issue Analytics** - Crackability scores, hidden gems, hot issues
 - **Security Scanner** - Detect exposed secrets with 22 patterns + entropy analysis
 - **Activity Monitor** - Anomaly detection for commit patterns using Z-score analysis
+- **Project Overview** - AI-powered codebase visualization and file-issue mapping
 - **Contributor Journey** - Visualize first-time → returning → core contributor flow
 - **Related PRs** - Find community fixes for vulnerabilities
 - **GitHub OAuth** - Access private repositories
@@ -109,6 +110,7 @@ Analyze pull request patterns and community contributor behavior.
 - [x] **Issue Analytics** - Crackability scores, hidden gems, hot issues
 - [x] **Security Scanner** - Detect exposed secrets with 22 regex patterns + entropy analysis
 - [x] **Activity Monitor** - Anomaly detection using Z-score analysis, burst detection, churn analysis
+- [x] **Project Overview** - D3 architecture diagram with AI-powered file-issue mapping
 
 ### In Progress (~15%)
 
@@ -284,6 +286,37 @@ Score = Σ(severityWeight × eventCount)
 | C     | 31-50  | Review recommended |
 | D     | 51-70  | Suspicious         |
 | F     | 71-100 | Critical review    |
+
+---
+
+## Project Overview
+
+AI-powered codebase visualization with file-issue mapping.
+
+### Features
+
+| Feature              | Description                                            |
+| -------------------- | ------------------------------------------------------ |
+| Architecture Diagram | D3.js tree visualization of repository structure       |
+| File-Issue Mapping   | Links GitHub issues to specific files using regex + AI |
+| Visual Indicators    | Red badges showing issue counts per file               |
+| AI Descriptions      | Auto-generated file purpose summaries                  |
+| Click-to-View        | Click files to see related issues in side panel        |
+
+### How It Works
+
+| Pass | Method           | Purpose                                              |
+| ---- | ---------------- | ---------------------------------------------------- |
+| 1    | Regex            | Extract file paths from issue titles/bodies          |
+| 2    | Reverse Map      | Build file → issues lookup                           |
+| 3    | AI (gpt-4o-mini) | Infer unmapped relationships + generate descriptions |
+
+### Next Steps
+
+| Feature             | Description                                          |
+| ------------------- | ---------------------------------------------------- |
+| Estimated Solutions | AI-powered fix suggestions by analyzing file context |
+| Scope Narrowing     | Identify minimal code changes needed for each issue  |
 
 ---
 
