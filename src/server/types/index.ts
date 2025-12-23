@@ -256,3 +256,19 @@ export type ProjectOverview = {
   fileCount: number;
   totalSize: number;
 };
+
+export type IssueReference = {
+  number: number;
+  title: string;
+  url: string;
+  labels: string[];
+  isMultiFile: boolean;
+  relatedFiles: string[];
+};
+
+export type FileIssueMapping = {
+  [filePath: string]: {
+    description: string | null;
+    issues: IssueReference[];
+  };
+};
