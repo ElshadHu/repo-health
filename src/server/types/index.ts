@@ -237,3 +237,22 @@ export type IssueStats = {
   goodFirstIssues: number;
   helpWantedIssues: number;
 };
+
+export type ArchitectureAnalysis = {
+  type: "monolith" | "monorepo" | "microservices";
+  stack: string[];
+  layers: Record<string, string>;
+  entryPoints: { path: string; description: string }[];
+  keyFiles: { path: string; purpose: string }[];
+  whereToLook: Record<string, string[]>;
+};
+export type FileNode = {
+  path: string;
+  type: "blob" | "tree";
+  size?: number;
+};
+export type ProjectOverview = {
+  analysis: ArchitectureAnalysis;
+  fileCount: number;
+  totalSize: number;
+};
