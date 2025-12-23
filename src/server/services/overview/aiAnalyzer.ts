@@ -2,9 +2,17 @@ import OpenAI from "openai";
 import type { FileNode, ArchitectureAnalysis } from "@/server/types";
 import { redis } from "@/lib/redis";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazy initialization to avoid build-time errors
+let openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY environment variable is required");
+    }
+    openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openai;
+}
 
 const CACHE_TTL = 60 * 60 * 24; // 24 hours
 
@@ -56,7 +64,7 @@ Return ONLY valid JSON with this exact structure:
   }
 }`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     response_format: { type: "json_object" },
