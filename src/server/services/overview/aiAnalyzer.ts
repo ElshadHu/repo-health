@@ -31,38 +31,38 @@ export async function analyzeArchitecture(
     }
   }
 
-  const fileList = files.map((f) => f.path).join("\n");
-  const packageJson = keyFilesContents["package.json"] || "{}";
+  // Limit file list to reduce tokens (top 50 most important paths)
+  const importantExtensions = [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".json",
+    ".prisma",
+  ];
+  const limitedFiles = files
+    .filter((f) => importantExtensions.some((ext) => f.path.endsWith(ext)))
+    .slice(0, 50);
+  const fileList = limitedFiles.map((f) => f.path).join("\n");
 
-  const prompt = `Analyze this GitHub repository structure and return a JSON object.
-
-Repository: ${owner}/${repo}
-
-File tree (${files.length} files):
-${fileList}
-
-package.json:
-${packageJson.slice(0, 2000)}
-
-Return ONLY valid JSON with this exact structure:
-{
-  "type": "monolith",
-  "stack": ["Next.js", "React", "TypeScript"],
-  "layers": {
-    "frontend": "src/app/, src/components/",
-    "backend": "src/server/"
-  },
-  "entryPoints": [
-    {"path": "src/app/page.tsx", "description": "Main entry point"}
-  ],
-  "keyFiles": [
-    {"path": "package.json", "purpose": "Dependencies and scripts"}
-  ],
-  "whereToLook": {
-    "authentication": ["src/lib/auth.ts"],
-    "database": ["prisma/schema.prisma"]
+  // Only include essential package.json fields
+  let packageInfo = "{}";
+  try {
+    const pkg = JSON.parse(keyFilesContents["package.json"] || "{}");
+    packageInfo = JSON.stringify({
+      name: pkg.name,
+      dependencies: pkg.dependencies
+        ? Object.keys(pkg.dependencies).slice(0, 15)
+        : [],
+      devDependencies: pkg.devDependencies
+        ? Object.keys(pkg.devDependencies).slice(0, 10)
+        : [],
+    });
+  } catch {
+    /* ignore */
   }
-}`;
+
+  const prompt = `Analyze repo ${owner}/${repo}. Files (${limitedFiles.length}):\n${fileList}\n\nPackage: ${packageInfo}\n\nReturn JSON: {"type":"monolith|monorepo|library","stack":["tech"],"layers":{"name":"paths"},"entryPoints":[{"path":"","description":""}],"keyFiles":[{"path":"","purpose":""}],"whereToLook":{"feature":["paths"]}}`;
 
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",

@@ -32,6 +32,7 @@ export const overviewRouter = router({
 
       return {
         analysis,
+        fileTree: importantFiles,
         fileCount: allFiles.length,
         totalSize: allFiles.reduce((sum, f) => sum + (f.size || 0), 0),
       };
