@@ -200,6 +200,31 @@ export default function HomePage() {
                   </Box>
                 )
               )}
+              {/* Stats Row - Top, Compact */}
+              <SimpleGrid columns={{ base: 2, md: 4 }} gap={4} mb={6}>
+                <StatCard
+                  label="Stars"
+                  value={data.repository.stars?.toLocaleString() || "0"}
+                  icon="⭐"
+                />
+                <StatCard
+                  label="Forks"
+                  value={data.repository.forks?.toLocaleString() || "0"}
+                  icon="🔱"
+                />
+                <StatCard
+                  label="Commits (90d)"
+                  value={data.activity?.commits?.length.toLocaleString() || "0"}
+                  icon="📝"
+                />
+                <StatCard
+                  label="Open Issues"
+                  value={data.repository.openIssues?.toLocaleString() || "0"}
+                  icon="🐛"
+                />
+              </SimpleGrid>
+
+              {/* Main Feature Cards - Uniform Grid */}
               {isDepsLoading ? (
                 <Box
                   bg="#161b22"
@@ -211,7 +236,7 @@ export default function HomePage() {
                   <Text color="#8b949e">Scanning dependencies...</Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
                   {dependencies && searchParams && (
                     <DependencySummaryCard
                       summary={dependencies.summary}
@@ -247,29 +272,6 @@ export default function HomePage() {
                   )}
                 </SimpleGrid>
               )}
-
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap={6}>
-                <StatCard
-                  label="Stars"
-                  value={data.repository.stars?.toLocaleString() || "0"}
-                  icon="⭐"
-                />
-                <StatCard
-                  label="Forks"
-                  value={data.repository.forks?.toLocaleString() || "0"}
-                  icon="🔱"
-                />
-                <StatCard
-                  label="Commits (90d)"
-                  value={data.activity?.commits?.length.toLocaleString() || "0"}
-                  icon="📝"
-                />
-                <StatCard
-                  label="Open Issues"
-                  value={data.repository.openIssues?.toLocaleString() || "0"}
-                  icon="🐛"
-                />
-              </SimpleGrid>
 
               {data.activity?.commits && data.activity.commits.length > 0 && (
                 <CommitListCard commits={data.activity.commits} />
