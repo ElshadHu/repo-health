@@ -18,7 +18,7 @@ import {
   WhereToLook,
   ArchitectureDiagram,
 } from "./index";
-import { ScoreInsightsPanel } from "./ScoreInsightsPanel";
+import { CombinedScorePanel } from "@/components/cards/CombinedScorePanel";
 
 type Props = {
   owner: string;
@@ -68,14 +68,13 @@ export function ProjectOverviewSection({ owner, repo }: Props) {
 
   return (
     <VStack gap={6} align="stretch">
-      {/* AI Score Insights Panel */}
-      {analysis.scoreInsights && (
-        <ScoreInsightsPanel
-          insights={analysis.scoreInsights}
-          formulaScore={healthScore.overallScore}
-          finalScore={healthScore.finalScore}
-        />
-      )}
+      {/* Combined Score Panel - Horizontal Layout */}
+      <CombinedScorePanel
+        score={healthScore.overallScore}
+        breakdown={healthScore.breakdown}
+        insights={analysis.scoreInsights}
+        finalScore={healthScore.finalScore}
+      />
 
       {/* Project Overview Card */}
       <Box bg="#161b22" border="1px solid #30363d" borderRadius="lg" p={6}>

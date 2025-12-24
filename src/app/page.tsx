@@ -20,7 +20,6 @@ import { LoadingState } from "@/components/LoadingState";
 import { RepositoryCard } from "@/components/cards/RepositoryCard";
 import { CommitListCard } from "@/components/cards/CommitListCard";
 import { ContributorCard } from "@/components/cards/ContributorCard";
-import { HealthScoreCircle } from "@/components/cards/HealthScoreCircle";
 import { DependencySummaryCard } from "@/components/cards/DependencySummaryCard";
 import { PRStatsCard } from "@/components/cards/PRStatsCard";
 import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
@@ -60,16 +59,11 @@ export default function HomePage() {
 
   const saveSearchMutation = trpc.user.saveSearch.useMutation();
 
-  const { data: healthScore, isLoading: isHealthLoading } =
-    trpc.health.getScore.useQuery(searchParams!, {
-      enabled: searchParams !== null,
-      retry: false,
-      staleTime: 1000 * 60 * 5, // 5 min client cache
-    });
-  const { data: prStats, isLoading: isPRLoading } = trpc.pr.getStats.useQuery(
-    searchParams!,
-    { enabled: searchParams !== null, retry: false, staleTime: 1000 * 60 * 5 }
-  );
+  const { data: prStats } = trpc.pr.getStats.useQuery(searchParams!, {
+    enabled: searchParams !== null,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  });
 
   const { data: dependencies, isLoading: isDepsLoading } =
     trpc.dependency.analyze.useQuery(searchParams!, {
@@ -181,31 +175,6 @@ export default function HomePage() {
                 languages={data.languages}
               />
 
-              {isHealthLoading ? (
-                <Box
-                  bg="#161b22"
-                  border="1px solid #30363d"
-                  p={6}
-                  borderRadius="lg"
-                  textAlign="center"
-                >
-                  <Text color="#8b949e">Loading health score...</Text>
-                </Box>
-              ) : (
-                healthScore && (
-                  <Box
-                    bg="#161b22"
-                    border="1px solid #30363d"
-                    p={6}
-                    borderRadius="lg"
-                  >
-                    <HealthScoreCircle
-                      score={healthScore.overallScore}
-                      breakdown={healthScore.breakdown}
-                    />
-                  </Box>
-                )
-              )}
               {/* Main Feature Cards - Uniform Grid */}
               {isDepsLoading ? (
                 <Box
