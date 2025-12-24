@@ -45,16 +45,17 @@ export const repoRouter = router({
           url: info.url,
           isPrivate: info.isPrivate,
         };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as Error;
         if (
-          error.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
-          error.message === "PRIVATE_REPO_REQUIRES_AUTH"
+          err.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
+          err.message === "PRIVATE_REPO_REQUIRES_AUTH"
         ) {
           throw new Error(
             "Repository is either private or does not exist. Please sign in to access private repositories."
           );
         }
-        throw error;
+        throw err;
       }
     }),
 
@@ -104,16 +105,17 @@ export const repoRouter = router({
           languages,
           communityHealth,
         };
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as Error;
         if (
-          error.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
-          error.message === "PRIVATE_REPO_REQUIRES_AUTH"
+          err.message === "REPO_NOT_FOUND_OR_PRIVATE" ||
+          err.message === "PRIVATE_REPO_REQUIRES_AUTH"
         ) {
           throw new Error(
             "Repository is either private or does not exist. Please sign in to access private repositories."
           );
         }
-        throw error;
+        throw err;
       }
     }),
 });

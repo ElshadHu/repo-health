@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Text, VStack, HStack, Badge } from "@chakra-ui/react";
+import { Box, Text, HStack, Badge } from "@chakra-ui/react";
 import { ResponsiveSankey } from "@nivo/sankey";
 import type { ContributorFunnel } from "@/server/types";
 import { FaUsers } from "react-icons/fa";
@@ -96,7 +96,13 @@ export function ContributorSankey({ funnel }: Props) {
         <Text as="span" color="#f85149" fontWeight="bold">
           {100 - retainedAfterFirst}%
         </Text>{" "}
-        of contributors don't return after their first PR
+        of contributors don&apos;t return after their first PR
+      </Text>
+      <Text color="8b949e" fontSize="sm">
+        <Text as="span" color="3fb950" fontWeight="bold">
+          {retentionRate}%
+        </Text>
+        become regular contributors
       </Text>
 
       {/* Sankey Diagram */}

@@ -20,7 +20,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
 } from "recharts";
 import {
   FaCodeBranch,
@@ -29,7 +28,6 @@ import {
   FaRobot,
   FaFileAlt,
   FaFire,
-  FaUsers,
   FaExternalLinkAlt,
   FaArrowLeft,
 } from "react-icons/fa";

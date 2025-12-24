@@ -27,14 +27,25 @@ export async function searchRelatedPRs(vulnId: string): Promise<RelatedPRs[]> {
     if (!response.ok) return [];
 
     const data = await response.json();
-    const prs: RelatedPRs[] = data.items.map((item: any) => ({
-      repo: item.repository_url.replace("https://api.github.com/repos/", ""),
-      prNumber: item.number,
-      title: item.title,
-      url: item.html_url,
-      status: item.pull_request?.merged_at ? "merged" : item.state,
-      mergedAt: item.pull_request?.merged_at || "",
-    }));
+    const prs: RelatedPRs[] = data.items.map(
+      (item: {
+        repository_url: string;
+        number: number;
+        title: string;
+        html_url: string;
+        pull_request: {
+          merged_at?: string;
+        };
+        state: string;
+      }) => ({
+        repo: item.repository_url.replace("https://api.github.com/repos/", ""),
+        prNumber: item.number,
+        title: item.title,
+        url: item.html_url,
+        status: item.pull_request?.merged_at ? "merged" : item.state,
+        mergedAt: item.pull_request?.merged_at || "",
+      })
+    );
 
     await cacheService.set(cacheKey, prs, CACHE_TTL.RELATED_PRS);
     return prs;
