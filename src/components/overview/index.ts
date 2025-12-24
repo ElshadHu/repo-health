@@ -1,4 +1,3 @@
-export { OverviewCard } from "./OverviewCard";
 export { TechStackBadges } from "./TechStackBadges";
 export { EntryPointsList } from "./EntryPointsList";
 export { KeyFilesList } from "./KeyFilesList";

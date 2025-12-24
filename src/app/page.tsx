@@ -28,7 +28,7 @@ import { PRStatsCard } from "@/components/cards/PRStatsCard";
 import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
 import { SecurityCard } from "@/components/cards/SecurityCard";
 import { ActivityCard } from "@/components/anomaly/ActivityCard";
-import { OverviewCard } from "@/components/overview";
+import { ProjectOverviewSection } from "@/components/overview";
 
 const toaster = createToaster({
   placement: "bottom",
@@ -271,13 +271,15 @@ export default function HomePage() {
                       repo={searchParams.repo}
                     />
                   )}
-                  {searchParams && (
-                    <OverviewCard
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )}
                 </SimpleGrid>
+              )}
+
+              {/* Project Overview - Full Width Section */}
+              {searchParams && (
+                <ProjectOverviewSection
+                  owner={searchParams.owner}
+                  repo={searchParams.repo}
+                />
               )}
 
               {data.activity?.commits && data.activity.commits.length > 0 && (
