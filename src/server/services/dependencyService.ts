@@ -4,7 +4,13 @@ import type {
   DependenciesResult,
   DependencyInfo,
   Vulnerability,
+  OSVRawVuln,
 } from "../types";
+
+type PackageJson = {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+};
 
 const CACHE_TTL = {
   OSV: 7 * 24 * 60 * 60,
@@ -14,7 +20,7 @@ function cleanVersion(version: string): string {
   return version.replace(/^[\^~>=<]/, "").split(" ")[0];
 }
 
-function mapSeverity(raw: any): Vulnerability["severity"] {
+function mapSeverity(raw: OSVRawVuln): Vulnerability["severity"] {
   const dbSeverity = raw?.database_specific?.severity?.toUpperCase() || "";
   if (dbSeverity === "CRITICAL") return "CRITICAL";
   if (dbSeverity === "HIGH") return "HIGH";
@@ -78,7 +84,7 @@ async function fetchPackageJson(
   }
 }
 
-function extractDeps(packageJson: any, key: string) {
+function extractDeps(packageJson: PackageJson, key: keyof PackageJson) {
   const raw = packageJson?.[key] || {};
   return Object.entries(raw).map(([name, version]) => ({
     name,
@@ -86,13 +92,13 @@ function extractDeps(packageJson: any, key: string) {
   }));
 }
 
-function parseOSVVuln(raw: any): Vulnerability {
+function parseOSVVuln(raw: OSVRawVuln): Vulnerability {
   return {
     id: raw.id,
     severity: mapSeverity(raw),
     summary: raw.summary || raw.details || "No description",
     fixedVersion: raw.affected?.[0]?.ranges?.[0]?.events?.find(
-      (e: any) => e.fixed
+      (e: { fixed?: string }) => e.fixed
     )?.fixed,
   };
 }

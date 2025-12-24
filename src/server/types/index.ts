@@ -48,6 +48,20 @@ export type RateLimitStatus = {
   reset: Date;
 };
 
+// OSV API raw response type  that is the expected shape
+export type OSVRawVuln = {
+  id: string;
+  summary?: string;
+  details?: string;
+  database_specific?: { severity?: string };
+  severity?: Array<{ score?: number; type?: string }>;
+  affected?: Array<{
+    ranges?: Array<{
+      events?: Array<{ fixed?: string }>;
+    }>;
+  }>;
+};
+
 // Health score types
 export type HealthScore = {
   overallScore: number;

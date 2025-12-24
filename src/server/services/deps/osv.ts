@@ -1,13 +1,13 @@
 // OSV API utilities for vulnerability scanning
 
 import { cacheService } from "@/lib/redis";
-import type { Vulnerability, Ecosystem } from "../../types";
+import type { Vulnerability, Ecosystem, OSVRawVuln } from "../../types";
 
 const CACHE_TTL = {
   OSV: 7 * 24 * 60 * 60, // 7 days
 };
 
-function mapSeverity(raw: any): Vulnerability["severity"] {
+function mapSeverity(raw: OSVRawVuln): Vulnerability["severity"] {
   const dbSeverity = raw?.database_specific?.severity?.toUpperCase() || "";
   if (dbSeverity === "CRITICAL") return "CRITICAL";
   if (dbSeverity === "HIGH") return "HIGH";
@@ -31,13 +31,13 @@ function mapSeverity(raw: any): Vulnerability["severity"] {
   return "LOW";
 }
 
-function parseOSVVuln(raw: any): Vulnerability {
+function parseOSVVuln(raw: OSVRawVuln): Vulnerability {
   return {
     id: raw.id,
     severity: mapSeverity(raw),
     summary: raw.summary || raw.details || "No description",
     fixedVersion: raw.affected?.[0]?.ranges?.[0]?.events?.find(
-      (e: any) => e.fixed
+      (e: { fixed?: string }) => e.fixed
     )?.fixed,
   };
 }
