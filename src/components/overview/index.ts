@@ -6,3 +6,5 @@ export { ArchitectureLayers } from "./ArchitectureLayers";
 export { WhereToLook } from "./WhereToLook";
 export { ArchitectureDiagram } from "./ArchitectureDiagram";
 export { FileDetailsPanel } from "./FileDetailsPanel";
+export { ScoreInsightsPanel } from "./ScoreInsightsPanel";
+export { ProjectOverviewSection } from "./ProjectOverviewSection";
