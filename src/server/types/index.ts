@@ -117,6 +117,24 @@ export type IssueCheckResult = {
 
 export type Ecosystem = "npm" | "PyPI" | "Go" | "crates.io" | "Conan" | "NuGet";
 
+// Raw GitHub PR from Octokit API  the expected shape
+export type GitHubPR = {
+  number: number;
+  title: string;
+  html_url: string;
+  created_at: string;
+  merged_at?: string | null;
+  author_association: string;
+  comments?: number;
+  review_comments?: number;
+  user?: { login: string; type?: string } | null;
+  requested_reviewers?: Array<{ login: string }> | null;
+};
+
+export type GitHubComment = {
+  user?: { login: string } | null;
+};
+
 export type HotPR = {
   id: number;
   title: string;

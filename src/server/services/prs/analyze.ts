@@ -8,6 +8,8 @@ import type {
   ContributorFunnel,
   AIInteractionStats,
   AIBotStats,
+  GitHubPR,
+  GitHubComment,
 } from "../../types";
 
 const CACHE_TTL_SECONDS = 2 * 60 * 60;
@@ -87,9 +89,9 @@ async function fetchPRReviewComments(
 }
 
 type EnrichedPR = {
-  pr: any;
-  issueComments: any[];
-  reviewComments: any[];
+  pr: GitHubPR;
+  issueComments: GitHubComment[];
+  reviewComments: GitHubComment[];
 };
 
 // Fetch comments for recent PRs (limit to avoid rate limits)
@@ -97,7 +99,7 @@ async function enrichPRsWithComments(
   octokit: Octokit,
   owner: string,
   repo: string,
-  prs: any[],
+  prs: GitHubPR[],
   limit = 15
 ): Promise<EnrichedPR[]> {
   const recentPRs = prs.slice(0, limit);
@@ -142,9 +144,9 @@ function msToHours(ms: number): number {
   return ms / (1000 * 60 * 60);
 }
 
-function getPRMergeTime(pr: any): number {
+function getPRMergeTime(pr: GitHubPR): number {
   const created = new Date(pr.created_at).getTime();
-  const merged = new Date(pr.merged_at).getTime();
+  const merged = new Date(pr.merged_at!).getTime();
   return msToHours(merged - created);
 }
 
@@ -156,7 +158,7 @@ function calculateMedian(values: number[]): number {
 
 type MergeTimeStats = { avg: number; median: number };
 
-function calculateMergeTime(prs: any[]): MergeTimeStats {
+function calculateMergeTime(prs: GitHubPR[]): MergeTimeStats {
   const merged = prs.filter((pr) => pr.merged_at);
   if (!merged.length) {
     const empty: MergeTimeStats = { avg: 0, median: 0 };
@@ -173,15 +175,15 @@ function calculateMergeTime(prs: any[]): MergeTimeStats {
   return stats;
 }
 
-function isMaintainer(pr: any): boolean {
+function isMaintainer(pr: GitHubPR): boolean {
   return MAINTAINER_ROLES.includes(pr.author_association);
 }
 
-function isBot(pr: any): boolean {
+function isBot(pr: GitHubPR): boolean {
   return pr.user?.type === "Bot";
 }
 
-function categorizeAuthors(prs: any[]): AuthorBreakdown {
+function categorizeAuthors(prs: GitHubPR[]): AuthorBreakdown {
   const maintainer = prs.filter(isMaintainer).length;
   const bots = prs.filter(isBot).length;
   const breakdown: AuthorBreakdown = {
@@ -192,11 +194,11 @@ function categorizeAuthors(prs: any[]): AuthorBreakdown {
   return breakdown;
 }
 
-function getTotalComments(pr: any): number {
+function getTotalComments(pr: GitHubPR): number {
   return (pr.comments || 0) + (pr.review_comments || 0);
 }
 
-function toHotPR(pr: any): HotPR {
+function toHotPR(pr: GitHubPR): HotPR {
   const hotPR: HotPR = {
     id: pr.number,
     title: pr.title,
@@ -210,12 +212,14 @@ function toHotPR(pr: any): HotPR {
   return hotPR;
 }
 
-function findHotPRs(prs: any[]): HotPR[] {
+function findHotPRs(prs: GitHubPR[]): HotPR[] {
   const threshold = 5;
   return prs
     .filter((pr) => getTotalComments(pr) >= threshold)
     .map(toHotPR)
-    .sort((a, b) => getTotalComments(b) - getTotalComments(a))
+    .sort(
+      (a, b) => b.comments + b.reviewComments - (a.comments + a.reviewComments)
+    )
     .slice(0, 5);
 }
 
@@ -226,7 +230,7 @@ function isAIReviewer(login: string): boolean {
   );
 }
 
-function detectAIReviewers(prs: any[]): string[] {
+function detectAIReviewers(prs: GitHubPR[]): string[] {
   const detected = new Set<string>();
   for (const pr of prs) {
     for (const reviewer of pr.requested_reviewers || []) {
@@ -268,7 +272,11 @@ function calculateAIInteractionStats(
 }
 
 function extractAICommentStats(
-  enrichedPRs: { pr: any; issueComments: any[]; reviewComments: any[] }[]
+  enrichedPRs: {
+    pr: GitHubPR;
+    issueComments: GitHubComment[];
+    reviewComments: GitHubComment[];
+  }[]
 ): Map<string, { comments: number; prs: Set<number> }> {
   const botStats = new Map<string, { comments: number; prs: Set<number> }>();
 
@@ -312,7 +320,7 @@ function calculateConversationStatsEnriched(
   return { avgComments, totalComments };
 }
 
-function calculateContributorFunnel(prs: any[]): ContributorFunnel {
+function calculateContributorFunnel(prs: GitHubPR[]): ContributorFunnel {
   // Count PRs per author
   const authorCounts = new Map<string, number>();
   for (const pr of prs) {
