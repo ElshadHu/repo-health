@@ -9,14 +9,20 @@ import {
   mapIssuesToFiles,
 } from "../services/overview";
 import * as issueservice from "../services/issues/analyze";
+import { calculateHealthScore } from "../services/healthScore";
+import { githubService } from "../services/github";
 
 export const overviewRouter = router({
   analyze: publicProcedure
     .input(z.object({ owner: z.string(), repo: z.string() }))
     .query(async ({ input, ctx }) => {
       const { owner, repo } = input;
-      const octokit = createOctokit(ctx.session?.accessToken);
-
+      const accessToken = ctx.session?.accessToken;
+      const octokit = createOctokit(accessToken);
+      const [healthScore, repoInfo] = await Promise.all([
+        calculateHealthScore(owner, repo, accessToken),
+        githubService.getRepoInfo(owner, repo, accessToken),
+      ]);
       // 1. Fetch file tree
       const allFiles = await fetchFileTree(octokit, owner, repo);
       const importantFiles = filterImportantFiles(allFiles);
@@ -29,25 +35,37 @@ export const overviewRouter = router({
         importantFiles,
         keyFileContents,
         owner,
-        repo
+        repo,
+        healthScore,
+        repoInfo
       );
       const issueStats = await issueservice.analyze({
         owner,
         repo,
-        token: ctx.session?.accessToken,
+        token: accessToken,
       });
       const fileIssueMap = await mapIssuesToFiles({
         issues: issueStats.issues,
         fileTree: importantFiles,
         repoInfo: { owner, repo },
       });
-
+      // Calculate score with AI adjustment
+      const aiAdjustment = analysis.scoreInsights?.adjustment?.amount || 0;
+      const finalScore = Math.max(
+        0,
+        Math.min(100, healthScore.overallScore + aiAdjustment)
+      );
       return {
         analysis,
         fileTree: importantFiles,
         fileCount: allFiles.length,
         totalSize: allFiles.reduce((sum, f) => sum + (f.size || 0), 0),
         fileIssueMap,
+        healthScore: {
+          ...healthScore,
+          aiAdjustment,
+          finalScore,
+        },
       };
     }),
 });
