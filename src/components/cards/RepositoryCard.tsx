@@ -124,25 +124,33 @@ export function RepositoryCard({
       )}
 
       {/* Languages */}
-      {languages && Object.keys(languages).length > 0 && (
-        <HStack gap={2} flexWrap="wrap">
-          {Object.entries(languages)
-            .slice(0, 6)
-            .map(([lang, percent]) => (
-              <Badge
-                key={lang}
-                bg="#21262d"
-                color="#58a6ff"
-                px={3}
-                py={1}
-                borderRadius="full"
-                fontSize="xs"
-              >
-                {lang} ({percent.toFixed(1)}%)
-              </Badge>
-            ))}
-        </HStack>
-      )}
+      {languages &&
+        Object.keys(languages).length > 0 &&
+        (() => {
+          const total = Object.values(languages).reduce((a, b) => a + b, 0);
+          return (
+            <HStack gap={2} flexWrap="wrap">
+              {Object.entries(languages)
+                .slice(0, 6)
+                .map(([lang, bytes]) => {
+                  const percent = (bytes / total) * 100;
+                  return (
+                    <Badge
+                      key={lang}
+                      bg="#21262d"
+                      color="#58a6ff"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                      fontSize="xs"
+                    >
+                      {lang} ({percent.toFixed(1)}%)
+                    </Badge>
+                  );
+                })}
+            </HStack>
+          );
+        })()}
     </Box>
   );
 }

@@ -79,18 +79,6 @@ function calculateCloseTimeStats(issues: IssueInfo[]): {
   };
 }
 
-function buildLabelBreakdown(issues: IssueInfo[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-
-  for (const issue of issues) {
-    for (const label of issue.labels) {
-      counts[label] = (counts[label] || 0) + 1;
-    }
-  }
-
-  return counts;
-}
-
 function countGoodFirstIssues(issues: IssueInfo[]): number {
   const goodFirstLabels = ["good first issue", "good-first-issue", "beginner"];
   return issues.filter(
