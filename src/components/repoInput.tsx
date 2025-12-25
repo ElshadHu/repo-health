@@ -178,10 +178,10 @@ export function RepoSearchInput({
     <Box as="form" onSubmit={handleSubmit} position="relative">
       <VStack gap={4} align="stretch">
         <VStack align="start" gap={2}>
-          <Text fontSize="lg" fontWeight="semibold" color="gray.800">
+          <Text fontSize="lg" fontWeight="semibold" color="#c9d1d9">
             Repository to Analyze
           </Text>
-          <Text fontSize="sm" color="gray.600">
+          <Text fontSize="sm" color="#8b949e">
             Enter GitHub URL or owner/repo (e.g., &quot;facebook/react&quot;)
           </Text>
         </VStack>
@@ -197,12 +197,12 @@ export function RepoSearchInput({
               }}
               onFocus={() => setShowDropdown(true)}
               placeholder="facebook/react or https://github.com/facebook/react"
-              size="lg"
+              size="md"
               disabled={isLoading}
-              color="gray.800"
-              bg="white"
-              borderColor="gray.300"
-              _placeholder={{ color: "gray.400" }}
+              color="#c9d1d9"
+              bg="#21262d"
+              borderColor="#30363d"
+              _placeholder={{ color: "#6e7681" }}
               autoComplete="off"
             />
 
@@ -215,9 +215,9 @@ export function RepoSearchInput({
                 left={0}
                 right={0}
                 mt={1}
-                bg="white"
+                bg="#21262d"
                 border="1px solid"
-                borderColor="gray.200"
+                borderColor="#30363d"
                 borderRadius="md"
                 boxShadow="lg"
                 zIndex={100}
@@ -230,11 +230,11 @@ export function RepoSearchInput({
                     px={4}
                     py={3}
                     cursor="pointer"
-                    _hover={{ bg: "gray.50" }}
+                    _hover={{ bg: "#30363d" }}
                     onClick={() => handleSelectSuggestion(suggestion)}
                     justify="space-between"
                   >
-                    <Text fontSize="sm" color="gray.800">
+                    <Text fontSize="sm" color="#c9d1d9">
                       {suggestion.fullName}
                     </Text>
                     {suggestion.private ? (

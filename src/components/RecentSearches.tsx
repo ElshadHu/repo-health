@@ -44,7 +44,7 @@ export function RecentSearches({
     <VStack align="stretch" gap={2} p={4}>
       <HStack gap={2} mb={1}>
         <FaHistory color="#8b949e" size={12} />
-        <Text fontSize="xs" color="gray.500" fontWeight="medium">
+        <Text fontSize="lg" color="#c9d1d9" fontWeight="semibold">
           Recent Searches
         </Text>
       </HStack>
@@ -53,14 +53,15 @@ export function RecentSearches({
           key={search.fullName}
           px={3}
           py={2}
-          bg="gray.50"
+          bg="#0d1117"
+          borderLeft="3px solid #58a6ff"
           borderRadius="md"
           cursor="pointer"
           transition="all 0.2s"
-          _hover={{ bg: "gray.100", transform: "translateX(4px)" }}
+          _hover={{ bg: "#161b22", transform: "translateX(4px)" }}
           onClick={() => onSelect(search.owner, search.repo)}
         >
-          <Text fontSize="sm" color="gray.700" fontWeight="medium">
+          <Text fontSize="sm" color="#c9d1d9" fontWeight="medium">
             {search.fullName}
           </Text>
         </Box>

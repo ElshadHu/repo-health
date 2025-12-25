@@ -111,7 +111,8 @@ export default function HomePage() {
           <PageHeader />
 
           <Flex
-            bg="white"
+            bg="#161b22"
+            border="1px solid #30363d"
             p={8}
             borderRadius="2xl"
             boxShadow="2xl"
@@ -127,9 +128,6 @@ export default function HomePage() {
             {isSignedIn && (
               <Box
                 flex={{ base: "1", md: "0.4" }}
-                borderLeft={{ base: "none", md: "1px solid" }}
-                borderTop={{ base: "1px solid", md: "none" }}
-                borderColor="gray.200"
                 pt={{ base: 4, md: 0 }}
                 pl={{ base: 0, md: 6 }}
               >
