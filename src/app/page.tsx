@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Box,
   Container,
@@ -34,14 +34,23 @@ const toaster = createToaster({
   max: 2,
 });
 
-export default function HomePage() {
+function HomePageContent() {
   const { status } = useSession();
   const searchParamsUrl = useSearchParams();
   const router = useRouter();
+
+  // Initialize state from URL params  for avoiding useEffect + setState problem
+  const initialOwner = searchParamsUrl.get("owner");
+  const initialRepo = searchParamsUrl.get("repo");
+  const initialSearchParams =
+    initialOwner && initialRepo
+      ? { owner: initialOwner, repo: initialRepo }
+      : null;
+
   const [searchParams, setSearchParams] = useState<{
     owner: string;
     repo: string;
-  } | null>(null);
+  } | null>(initialSearchParams);
   const [searchAttempt, setSearchAttempt] = useState(0);
 
   const { data, isLoading, error } = trpc.repo.getCompleteAnalysis.useQuery(
@@ -74,14 +83,6 @@ export default function HomePage() {
       retry: false,
       staleTime: 1000 * 60 * 5, // 5 min client cache
     });
-
-  useEffect(() => {
-    const owner = searchParamsUrl.get("owner");
-    const repo = searchParamsUrl.get("repo");
-    if (owner && repo && !searchParams) {
-      setSearchParams({ owner, repo });
-    }
-  }, [searchParamsUrl, searchParams]);
 
   useEffect(() => {
     if (error && searchAttempt > 0) {
@@ -254,5 +255,13 @@ export default function HomePage() {
         </VStack>
       </Container>
     </Box>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <HomePageContent />
+    </Suspense>
   );
 }
