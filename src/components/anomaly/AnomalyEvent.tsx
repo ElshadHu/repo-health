@@ -12,10 +12,20 @@ const COLORS = {
   info: { bg: "#58a6ff26", color: "#58a6ff" },
 };
 
+// More descriptive labels for anomaly types
+const TYPE_LABELS: Record<string, string> = {
+  velocity: "Rapid Commits",
+  churn: "Mass Deletion",
+  time: "Off-Hours Activity",
+  file: "Sensitive File",
+  pattern: "Unusual Pattern",
+};
+
 type Props = { event: PatternAnomaly };
 
 export function AnomalyEvent({ event }: Props) {
   const style = COLORS[event.severity];
+  const typeLabel = TYPE_LABELS[event.type] || event.type;
 
   return (
     <Box
@@ -30,7 +40,7 @@ export function AnomalyEvent({ event }: Props) {
             {event.severity.toUpperCase()}
           </Badge>
           <Text color="#c9d1d9" fontWeight="bold">
-            {event.type}
+            {typeLabel}
           </Text>
           {event.zScore && (
             <Badge bg="#30363d" color="#8b949e">

@@ -18,7 +18,8 @@ export function IssueStatsCard({ openIssues, owner, repo }: Props) {
         border="1px solid #30363d"
         borderRadius="lg"
         p={6}
-        minH="180px"
+        minH="200px"
+        h="200px"
         cursor="pointer"
         transition="all 0.3s ease"
         _hover={{

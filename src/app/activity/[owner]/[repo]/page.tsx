@@ -96,15 +96,20 @@ export default function ActivityPage() {
             </Text>
           </VStack>
         </HStack>
-        <Badge
-          fontSize="xl"
-          px={4}
-          py={2}
-          bg={`${gradeColor}26`}
-          color={gradeColor}
-        >
-          {data.grade} ({data.score}/100)
-        </Badge>
+        <VStack align="end" gap={0}>
+          <Badge
+            fontSize="xl"
+            px={4}
+            py={2}
+            bg={`${gradeColor}26`}
+            color={gradeColor}
+          >
+            {data.grade} ({data.score}/100)
+          </Badge>
+          <Text fontSize="xs" color="#6e7681" mt={1}>
+            Based on alert severity & frequency
+          </Text>
+        </VStack>
       </HStack>
 
       {/* Stats */}

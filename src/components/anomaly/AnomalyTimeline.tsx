@@ -1,7 +1,7 @@
 "use client";
 
-import { VStack, Box, Text } from "@chakra-ui/react";
-import { FaCheckCircle } from "react-icons/fa";
+import { VStack, Box, Text, HStack } from "@chakra-ui/react";
+import { FaCheckCircle, FaCalendarAlt } from "react-icons/fa";
 import { AnomalyEvent } from "./AnomalyEvent";
 import type { PatternAnomaly } from "@/server/services/anomaly";
 
@@ -23,7 +23,7 @@ export function AnomalyTimeline({ events }: Props) {
           style={{ margin: "0 auto 16px" }}
         />
         <Text color="#238636" fontSize="xl" fontWeight="bold">
-          No anomalies detected!
+          No alerts detected!
         </Text>
         <Text color="#8b949e" mt={2}>
           Commit patterns look normal.
@@ -34,9 +34,12 @@ export function AnomalyTimeline({ events }: Props) {
 
   return (
     <Box bg="#161b22" border="1px solid #30363d" borderRadius="lg" p={6}>
-      <Text fontSize="lg" fontWeight="bold" color="#c9d1d9" mb={4}>
-        📅 Anomaly Timeline
-      </Text>
+      <HStack gap={2} mb={4}>
+        <FaCalendarAlt color="#58a6ff" size={18} />
+        <Text fontSize="lg" fontWeight="bold" color="#c9d1d9">
+          Activity Alerts
+        </Text>
+      </HStack>
       <VStack align="stretch" gap={3}>
         {events.map((event, i) => (
           <AnomalyEvent key={i} event={event} />

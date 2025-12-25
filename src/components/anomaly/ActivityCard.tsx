@@ -14,7 +14,8 @@ export function ActivityCard({ owner, repo }: Props) {
         border="1px solid #30363d"
         borderRadius="lg"
         p={5}
-        minH="180px"
+        minH="200px"
+        h="200px"
         cursor="pointer"
         _hover={{ borderColor: "#58a6ff", transform: "translateY(-2px)" }}
         transition="all 0.2s"
