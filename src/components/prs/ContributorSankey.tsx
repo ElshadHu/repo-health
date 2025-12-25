@@ -98,10 +98,10 @@ export function ContributorSankey({ funnel }: Props) {
         </Text>{" "}
         of contributors don&apos;t return after their first PR
       </Text>
-      <Text color="8b949e" fontSize="sm">
-        <Text as="span" color="3fb950" fontWeight="bold">
+      <Text color="#8b949e" fontSize="sm">
+        <Text as="span" color="#3fb950" fontWeight="bold">
           {retentionRate}%
-        </Text>
+        </Text>{" "}
         become regular contributors
       </Text>
 
