@@ -198,49 +198,52 @@ function HomePageContent() {
                   <Text color="#8b949e">Scanning dependencies...</Text>
                 </Box>
               ) : (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-                  {dependencies && searchParams && (
-                    <DependencySummaryCard
-                      summary={dependencies.summary}
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )}
-                  {prStats && searchParams && (
-                    <PRStatsCard
-                      stats={prStats}
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )}
+                <>
+                  {/* Project Overview - Full Width Section */}
                   {searchParams && (
-                    <IssueStatsCard
-                      openIssues={data.repository.openIssues || 0}
+                    <ProjectOverviewSection
                       owner={searchParams.owner}
                       repo={searchParams.repo}
                     />
                   )}
-                  {searchParams && (
-                    <SecurityCard
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )}
-                  {searchParams && (
-                    <ActivityCard
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )}
-                </SimpleGrid>
-              )}
 
-              {/* Project Overview - Full Width Section */}
-              {searchParams && (
-                <ProjectOverviewSection
-                  owner={searchParams.owner}
-                  repo={searchParams.repo}
-                />
+                  {/* Main Feature Cards */}
+                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
+                    {dependencies && searchParams && (
+                      <DependencySummaryCard
+                        summary={dependencies.summary}
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                    {prStats && searchParams && (
+                      <PRStatsCard
+                        stats={prStats}
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                    {searchParams && (
+                      <IssueStatsCard
+                        openIssues={data.repository.openIssues || 0}
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                    {searchParams && (
+                      <SecurityCard
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                    {searchParams && (
+                      <ActivityCard
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                  </SimpleGrid>
+                </>
               )}
 
               {data.activity?.commits && data.activity.commits.length > 0 && (
