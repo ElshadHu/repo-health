@@ -1,12 +1,8 @@
-import { Box, Heading, HStack, Text } from "@chakra-ui/react";
-import { AuthButton } from "./AuthButton";
+import { Box, Heading, Text } from "@chakra-ui/react";
 
 export function PageHeader() {
   return (
     <Box textAlign="center" py={8}>
-      <HStack justify="flex-end" mb={4}>
-        <AuthButton />
-      </HStack>
       <Heading
         size="6xl"
         mb={4}
