@@ -1,6 +1,6 @@
 import { cacheService } from "@/lib/redis";
 import { CommunityHealth } from "../../types";
-import { createOctokit, CACHE_TTL } from "./shared";
+import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
 
 export async function getCommunityHealth(
   owner: string,
@@ -8,7 +8,8 @@ export async function getCommunityHealth(
   accessToken?: string | null
 ): Promise<CommunityHealth> {
   const octokit = createOctokit(accessToken);
-  const cacheKey = `repo:community:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:community:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<CommunityHealth>(cacheKey);
   if (cached) return cached;
 

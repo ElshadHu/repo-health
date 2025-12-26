@@ -1,6 +1,6 @@
 import { cacheService } from "@/lib/redis";
 import { Commit, Contributor } from "../../types";
-import { createOctokit, CACHE_TTL } from "./shared";
+import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
 
 export async function getCommits(
   owner: string,
@@ -8,7 +8,8 @@ export async function getCommits(
   accessToken?: string | null
 ): Promise<Commit[]> {
   const octokit = createOctokit(accessToken);
-  const cacheKey = `repo:commits:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:commits:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<Commit[]>(cacheKey);
   if (cached) return cached;
 
@@ -46,7 +47,8 @@ export async function getContributors(
   accessToken?: string | null
 ): Promise<Contributor[]> {
   const octokit = createOctokit(accessToken);
-  const cacheKey = `repo:contributors:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:contributors:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<Contributor[]>(cacheKey);
   if (cached) return cached;
 

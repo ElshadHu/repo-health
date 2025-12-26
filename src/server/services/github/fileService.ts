@@ -1,6 +1,6 @@
 import { cacheService } from "@/lib/redis";
 import { RateLimitStatus } from "../../types";
-import { createOctokit, CACHE_TTL } from "./shared";
+import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
 
 export async function getRateLimitStatus(
   accessToken?: string | null
@@ -21,8 +21,8 @@ export async function getFileContent(
   accessToken?: string | null
 ): Promise<string | null> {
   const octokit = createOctokit(accessToken);
-  // Include auth in cache key to isolate private repo data
-  const cacheKey = `repo:file:${owner}:${repo}:${path}${accessToken ? ":auth" : ""}`;
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:file:${owner}:${repo}:${path}:${tokenHash}`;
   const cached = await cacheService.get<string>(cacheKey);
   if (cached) return cached;
   try {

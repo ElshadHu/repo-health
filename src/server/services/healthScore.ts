@@ -8,6 +8,7 @@ import {
   calculateDocumentationScore,
   WEIGHTS,
 } from "./calculations";
+import { getTokenHash } from "./github/shared";
 
 const CACHE_TTL = 3600; // 1 hour
 
@@ -16,8 +17,9 @@ export async function calculateHealthScore(
   repo: string,
   accessToken?: string | null
 ): Promise<HealthScore> {
-  // Check cache first
-  const cacheKey = `health-score:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  // use token hash to ensure user-specific caching
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `health-score:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<HealthScore>(cacheKey);
   if (cached) {
     return cached;

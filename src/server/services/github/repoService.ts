@@ -1,13 +1,15 @@
 import { cacheService } from "@/lib/redis";
 import { RepoInfo } from "../../types";
-import { createOctokit, CACHE_TTL } from "./shared";
+import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
 
 export async function getRepoInfo(
   owner: string,
   repo: string,
   accessToken?: string | null
 ): Promise<RepoInfo> {
-  const cacheKey = `repo:info:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  // Use token hash to ensure private repo cache is user-specific
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:info:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<RepoInfo | { error: string }>(cacheKey);
 
   // Check for cached errors (404/private)
@@ -30,8 +32,6 @@ export async function getRepoInfo(
       owner,
       repo,
     });
-
-    // Check if repo is private BEFORE processing data
     // If repo is private but user is not authenticated, throw an error
     if (data.private && !accessToken) {
       throw new Error("PRIVATE_REPO_REQUIRES_AUTH");
@@ -87,7 +87,8 @@ export async function getLanguages(
   accessToken?: string | null
 ) {
   const octokit = createOctokit(accessToken);
-  const cacheKey = `repo:languages:${owner}:${repo}${accessToken ? ":auth" : ""}`;
+  const tokenHash = getTokenHash(accessToken);
+  const cacheKey = `repo:languages:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<Record<string, number>>(cacheKey);
   if (cached) return cached;
 
