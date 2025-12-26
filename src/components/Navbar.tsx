@@ -27,7 +27,7 @@ import Link from "next/link";
 
 export function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   // Extract owner/repo from URL if on an analysis page
   const pathParts = pathname.split("/").filter(Boolean);
@@ -154,7 +154,16 @@ export function Navbar() {
 
           {/* Right: User Menu */}
           <HStack gap={4}>
-            {session?.user ? (
+            {status === "loading" ? (
+              // Loading state - same on server and client
+              <Box
+                w="100px"
+                h="32px"
+                bg="#21262d"
+                borderRadius="md"
+                opacity={0.5}
+              />
+            ) : session?.user ? (
               <Menu.Root positioning={{ placement: "bottom-end" }}>
                 <Menu.Trigger asChild>
                   <Button
