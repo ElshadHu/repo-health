@@ -16,6 +16,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  events: {
+    // Store/update the access token when user signs in
+    async signIn({ account }) {
+      if (account?.provider === "github" && account.access_token) {
+        // Token is stored by PrismaAdapter automatically
+      }
+    },
+  },
   callbacks: {
     async session({ session, user }) {
       if (session.user) {

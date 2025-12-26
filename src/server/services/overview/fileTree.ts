@@ -6,20 +6,25 @@ export async function fetchFileTree(
   owner: string,
   repo: string
 ): Promise<FileNode[]> {
-  const { data } = await octokit.git.getTree({
-    owner,
-    repo,
-    tree_sha: "HEAD",
-    recursive: "true",
-  });
+  try {
+    const { data } = await octokit.git.getTree({
+      owner,
+      repo,
+      tree_sha: "HEAD",
+      recursive: "true",
+    });
 
-  return data.tree
-    .filter((item) => item.path && item.type)
-    .map((item) => ({
-      path: item.path!,
-      type: item.type as "blob" | "tree",
-      size: item.size,
-    }));
+    return data.tree
+      .filter((item) => item.path && item.type)
+      .map((item) => ({
+        path: item.path!,
+        type: item.type as "blob" | "tree",
+        size: item.size,
+      }));
+  } catch {
+    // 409 = empty repository (no commits), 404 = not found
+    return [];
+  }
 }
 
 export function filterImportantFiles(files: FileNode[]): FileNode[] {

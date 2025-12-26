@@ -20,20 +20,22 @@ export const repoRouter = router({
           input.repo,
           accessToken
         );
-
-        await prisma.repository.upsert({
-          where: { owner_name: { owner: input.owner, name: input.repo } },
-          create: {
-            owner: input.owner,
-            name: input.repo,
-            url: info.url,
-            isPrivate: info.isPrivate || false,
-          },
-          update: {
-            url: info.url,
-            isPrivate: info.isPrivate || false,
-          },
-        });
+        // Private repos are user-specific and shouldn't leak to other users
+        if (!info.isPrivate) {
+          await prisma.repository.upsert({
+            where: { owner_name: { owner: input.owner, name: input.repo } },
+            create: {
+              owner: input.owner,
+              name: input.repo,
+              url: info.url,
+              isPrivate: false,
+            },
+            update: {
+              url: info.url,
+              isPrivate: false,
+            },
+          });
+        }
 
         return {
           name: info.name,
@@ -83,20 +85,23 @@ export const repoRouter = router({
             ),
           ]);
 
-        await prisma.repository.upsert({
-          where: { owner_name: { owner: input.owner, name: input.repo } },
-          create: {
-            owner: input.owner,
-            name: input.repo,
-            url: repoInfo.url,
-            isPrivate: repoInfo.isPrivate || false,
-          },
-          update: {
-            url: repoInfo.url,
-            updatedAt: new Date(),
-            isPrivate: repoInfo.isPrivate || false,
-          },
-        });
+        // Only store PUBLIC repos in the shared database
+        if (!repoInfo.isPrivate) {
+          await prisma.repository.upsert({
+            where: { owner_name: { owner: input.owner, name: input.repo } },
+            create: {
+              owner: input.owner,
+              name: input.repo,
+              url: repoInfo.url,
+              isPrivate: false,
+            },
+            update: {
+              url: repoInfo.url,
+              updatedAt: new Date(),
+              isPrivate: false,
+            },
+          });
+        }
 
         return {
           repository: repoInfo,
