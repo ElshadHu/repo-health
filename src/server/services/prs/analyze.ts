@@ -355,7 +355,8 @@ type AnalyzeOptions = {
 export async function analyze(options: AnalyzeOptions): Promise<PRStats> {
   const { owner, repo, token } = options;
 
-  const cacheKey = `prs:${owner}:${repo}`;
+  // SECURITY: Include auth in cache key to isolate private repo data
+  const cacheKey = `prs:${owner}:${repo}${token ? ":auth" : ""}`;
   const cached = await cacheService.get<PRStats>(cacheKey);
   if (cached) {
     return cached;

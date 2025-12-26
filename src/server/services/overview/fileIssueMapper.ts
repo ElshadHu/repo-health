@@ -44,16 +44,18 @@ type AIEnhanceOptions = {
   fileTree: FileNode[];
   unmappedIssues: IssueInfo[];
   repoInfo: { owner: string; repo: string };
+  isAuthenticated?: boolean;
 };
 
 async function enhanceWithAI(
   options: AIEnhanceOptions
 ): Promise<AIEnhancement> {
-  const { regexMapping, fileTree, unmappedIssues, repoInfo } = options;
+  const { regexMapping, fileTree, unmappedIssues, repoInfo, isAuthenticated } =
+    options;
   const { owner, repo } = repoInfo;
 
-  // Check cache first
-  const cacheKey = `file-issue-ai:${owner}:${repo}`;
+  // Check cache first - SECURITY: Include auth in cache key to isolate private repo data
+  const cacheKey = `file-issue-ai:${owner}:${repo}${isAuthenticated ? ":auth" : ""}`;
   if (redis) {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -113,12 +115,13 @@ type MapOptions = {
   fileTree: FileNode[];
   repoInfo: { owner: string; repo: string };
   useAI?: boolean;
+  isAuthenticated?: boolean; // SECURITY: for cache isolation
 };
 
 export async function mapIssuesToFiles(
   options: MapOptions
 ): Promise<FileIssueMapping> {
-  const { issues, fileTree, repoInfo, useAI = true } = options;
+  const { issues, fileTree, repoInfo, useAI = true, isAuthenticated } = options;
   const { owner, repo } = repoInfo;
   const mapping: FileIssueMapping = {};
   const knownPaths = new Set(fileTree.map((f) => f.path));
@@ -199,6 +202,7 @@ export async function mapIssuesToFiles(
     fileTree,
     unmappedIssues,
     repoInfo: { owner, repo },
+    isAuthenticated,
   });
 
   for (const [path, desc] of Object.entries(aiEnhancement.fileDescriptions)) {

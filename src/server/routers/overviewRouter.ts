@@ -30,14 +30,15 @@ export const overviewRouter = router({
       // 2. Fetch key files
       const keyFileContents = await fetchKeyFiles(octokit, owner, repo);
 
-      // 3. AI analysis
+      // 3. AI analysis (pass isAuthenticated to isolate cache for private repos)
       const analysis = await analyzeArchitecture(
         importantFiles,
         keyFileContents,
         owner,
         repo,
         healthScore,
-        repoInfo
+        repoInfo,
+        !!accessToken // isAuthenticated flag for cache isolation
       );
       const issueStats = await issueservice.analyze({
         owner,
@@ -48,6 +49,7 @@ export const overviewRouter = router({
         issues: issueStats.issues,
         fileTree: importantFiles,
         repoInfo: { owner, repo },
+        isAuthenticated: !!accessToken, // for cache isolation
       });
       // Calculate score with AI adjustment
       const aiAdjustment = analysis.scoreInsights?.adjustment?.amount || 0;

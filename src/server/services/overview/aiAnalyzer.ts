@@ -38,10 +38,11 @@ export async function analyzeArchitecture(
   owner: string,
   repo: string,
   healthScore?: HealthScore,
-  repoInfo?: RepoInfo
+  repoInfo?: RepoInfo,
+  isAuthenticated?: boolean
 ): Promise<EnhancedArchitectureAnalysis> {
-  // Check cache first
-  const cacheKey = `overview:v2:${owner}:${repo}`;
+  // Check cache first - SECURITY: Include auth in cache key to isolate private repo data
+  const cacheKey = `overview:v2:${owner}:${repo}${isAuthenticated ? ":auth" : ""}`;
   if (redis) {
     const cached = await redis.get(cacheKey);
     if (cached) {

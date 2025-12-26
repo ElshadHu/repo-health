@@ -21,7 +21,8 @@ export async function getFileContent(
   accessToken?: string | null
 ): Promise<string | null> {
   const octokit = createOctokit(accessToken);
-  const cacheKey = `repo:file:${owner}:${repo}:${path}`;
+  // Include auth in cache key to isolate private repo data
+  const cacheKey = `repo:file:${owner}:${repo}:${path}${accessToken ? ":auth" : ""}`;
   const cached = await cacheService.get<string>(cacheKey);
   if (cached) return cached;
   try {
