@@ -19,39 +19,10 @@ model Repository {
   isPrivate     Boolean    @default(false)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  analyses      Analysis[]
 
   @@unique([owner, name])
   @@index([owner, name])
   @@index([isPrivate])
-}
-
-// Analysis model that  stores health check results
-model Analysis {
-  id           String     @id @default(cuid())
-  repositoryId String
-  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
-
-  overallScore     Int
-  activityScore    Int
-  communityScore   Int
-  maintenanceScore Int
-
-  analysisData Json
-  createdAt    DateTime @default(now())
-
-  @@index([repositoryId])
-  @@index([createdAt])
-}
-
-// Contributor model
-model Contributor {
-  id                 String   @id @default(cuid())
-  username           String   @unique
-  avatarUrl          String?
-  totalContributions Int      @default(0)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
 }
 
 // Authentication models
@@ -99,15 +70,6 @@ model Session {
   @@index([userId])
 }
 
-// Email verficiation model
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
 model SearchHistory {
   id String @id @default(cuid())
   userId String
@@ -115,6 +77,7 @@ model SearchHistory {
   owner String  // repo owner 
   repo String
   fullName String
+  isPrivate Boolean @default(false) // Track if repo is private for filtering
   searchedAt DateTime @default(now())
 
   @@index([userId, searchedAt])
