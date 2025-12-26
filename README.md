@@ -43,28 +43,35 @@ A tool for analyzing GitHub repository health, identifying vulnerable dependenci
 ```
 src/
 ├── app/                      # Next.js pages
-│   └── prs/[owner]/[repo]/  # PR analytics page
+│   ├── api/                  # API routes (tRPC, auth)
+│   ├── prs/                  # PR analytics
+│   ├── issues/               # Issue analytics
+│   ├── dependencies/         # Dependency analysis
+│   ├── security/             # Security scanner
+│   └── activity/             # Activity monitor
 ├── components/               # UI components
-│   ├── cards/               # Stat cards
-│   ├── prs/                 # PR analytics UI
-│   └── dependencies/        # Vulnerability UI
+│   ├── cards/                # Stat cards
+│   ├── prs/                  # PR analytics UI
+│   ├── issues/               # Issue analytics UI
+│   ├── dependencies/         # Vulnerability UI
+│   ├── anomaly/              # Activity monitor UI
+│   └── overview/             # Architecture diagram
 ├── server/
-│   ├── routers/             # tRPC endpoints
+│   ├── routers/              # tRPC endpoints
 │   ├── services/
-│   │   ├── github/          # GitHub API
-│   │   ├── deps/            # Dependency analysis
-│   │   ├── prs/             # PR analysis
-│   │   ├── issues/          # Issue analysis
-│   │   ├── security/        # Secret scanner
-│   │   │   ├── patterns.ts  # 22 regex patterns
-│   │   │   ├── entropy.ts   # Shannon entropy
-│   │   │   ├── masker.ts    # Secret masking
-│   │   │   └── scanner.ts   # Main logic
-│   │   ├── healthScore.ts   # Score calculation
-│   │   └── calculations.ts  # Algorithms
-│   └── types/               # TypeScript types
+│   │   ├── github/           # GitHub API
+│   │   ├── deps/             # Dependency analysis
+│   │   ├── prs/              # PR analysis
+│   │   ├── issues/           # Issue analysis
+│   │   ├── security/         # Secret scanner
+│   │   ├── anomaly/          # Activity anomaly detection
+│   │   ├── overview/         # AI-powered file-issue mapping
+│   │   └── user/             # User/auth services
+│   └── types/                # TypeScript types
 ├── trpc/                     # tRPC config
-└── lib/                      # Redis, Prisma, Auth
+├── lib/                      # Redis, Prisma, Auth
+├── types/                    # Shared TypeScript types
+└── generated/                # Prisma generated client
 ```
 
 ---
