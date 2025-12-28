@@ -1,3 +1,5 @@
+export * from "./contributor";
+
 export type RepoInfo = {
   name: string;
   owner: string;
