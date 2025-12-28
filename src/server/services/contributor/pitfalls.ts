@@ -8,12 +8,13 @@ import type {
   PRLineComment,
   RejectedPRDetails,
   PitfallsResult,
+  SpammerProfile,
 } from "@/server/types";
 
 const MAINTAINER_ROLES = ["OWNER", "MEMBER", "COLLABORATOR"];
 const CACHE_TTL = 60 * 60 * 24; // 24 hours
 
-// Lazy OpenAI initialization (same pattern as aiAnalyzer.ts)
+// Lazy OpenAI initialization
 let openai: OpenAI | null = null;
 function getOpenAI(): OpenAI {
   if (!openai) {
@@ -25,9 +26,6 @@ function getOpenAI(): OpenAI {
   return openai;
 }
 
-/**
- * Fetch closed PRs that were NOT merged (rejected) from community contributors
- */
 async function fetchRejectedPRs(octokit: Octokit, owner: string, repo: string) {
   const response = await octokit.rest.pulls.list({
     owner,
@@ -47,13 +45,59 @@ async function fetchRejectedPRs(octokit: Octokit, owner: string, repo: string) {
     return isNotMerged && isFromCommunity;
   });
 
-  // Limit to 20 most recent
-  return rejectedCommunityPRs.slice(0, 20);
+  // Limit to 50 most recent for larger repos
+  return rejectedCommunityPRs.slice(0, 50);
 }
 
-/**
- * Get detailed information for a single PR
- */
+// Spam detection patterns
+const SPAM_TITLE_PATTERNS = [
+  /add(ed|ing)?\s+(my\s+)?name/i,
+  /update(d)?\s+readme/i,
+  /add(ed|ing)?\s+myself/i,
+  /first\s+contribution/i,
+  /hacktoberfest/i,
+  /\btest\s*pr\b/i,
+];
+
+// Check if a PR looks like spam based on title and files
+function detectSpam(
+  pr: {
+    number: number;
+    title: string;
+    user: { login: string; avatar_url: string } | null;
+  },
+  files: PRFileChange[]
+): { isSpam: boolean; reason: string } {
+  const title = pr.title.toLowerCase();
+
+  // Check if only touches README
+  const isReadmeOnly =
+    files.length === 1 && files[0].filename.toLowerCase().includes("readme");
+
+  // Check for spam title patterns
+  for (const pattern of SPAM_TITLE_PATTERNS) {
+    if (pattern.test(pr.title)) {
+      if (isReadmeOnly) {
+        return { isSpam: true, reason: "Added name to README" };
+      }
+      if (title.includes("hacktoberfest")) {
+        return {
+          isSpam: true,
+          reason: "Low-effort Hacktoberfest contribution",
+        };
+      }
+    }
+  }
+
+  // Very small changes to README only
+  if (isReadmeOnly && files[0].additions < 5 && files[0].deletions < 3) {
+    return { isSpam: true, reason: "Trivial README change" };
+  }
+
+  return { isSpam: false, reason: "" };
+}
+
+// Get detailed information for a single PR
 async function getPRDetails(
   octokit: Octokit,
   owner: string,
@@ -64,7 +108,6 @@ async function getPRDetails(
   reviews: PRReview[];
   lineComments: PRLineComment[];
 }> {
-  // Parallel fetch for speed
   const [filesRes, reviewsRes, commentsRes] = await Promise.all([
     octokit.rest.pulls.listFiles({ owner, repo, pull_number: prNumber }),
     octokit.rest.pulls.listReviews({ owner, repo, pull_number: prNumber }),
@@ -219,9 +262,7 @@ Return valid JSON:
   return prompt;
 }
 
-/**
- * Call OpenAI with the prompt
- */
+// Call OpenAI with the prompt
 async function analyzeWithAI(prompt: string): Promise<PitfallsResult> {
   const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
@@ -236,12 +277,13 @@ async function analyzeWithAI(prompt: string): Promise<PitfallsResult> {
     analyses: parsed.analyses || [],
     patterns: parsed.patterns || [],
     analyzedCount: parsed.analyses?.length || 0,
+    spammers: [],
   };
 
   return result;
 }
 
-// Main export: Get pitfalls analysis for a repository
+//Get pitfalls analysis for a repository
 export async function getPitfalls(
   octokit: Octokit,
   owner: string,
@@ -270,6 +312,7 @@ export async function getPitfalls(
       analyses: [],
       patterns: [],
       analyzedCount: 0,
+      spammers: [],
     };
     return emptyResult;
   }
@@ -291,8 +334,36 @@ export async function getPitfalls(
     };
   });
 
-  // no reviews or comments to analyze
-  const hasContent = prsWithDetails.some((pr) => {
+  // Detect spammers and separate from legitimate PRs
+  const spammers: SpammerProfile[] = [];
+  const legitimatePRs: RejectedPRDetails[] = [];
+
+  for (let i = 0; i < prsWithDetails.length; i++) {
+    const pr = prsWithDetails[i];
+    const originalPR = rejectedPRs[i];
+    const spamCheck = detectSpam(
+      {
+        number: pr.number,
+        title: pr.title,
+        user: originalPR.user,
+      },
+      pr.files
+    );
+
+    if (spamCheck.isSpam) {
+      spammers.push({
+        username: originalPR.user?.login ?? "unknown",
+        avatarUrl: originalPR.user?.avatar_url ?? "",
+        prNumber: pr.number,
+        reason: spamCheck.reason,
+      });
+    } else {
+      legitimatePRs.push(pr);
+    }
+  }
+
+  // no reviews or comments to analyze on legitimate PRs
+  const hasContent = legitimatePRs.some((pr) => {
     return pr.reviews.length > 0 || pr.lineComments.length > 0;
   });
 
@@ -303,6 +374,7 @@ export async function getPitfalls(
         "No review feedback found on rejected PRs - maintainers may close without comment",
       ],
       analyzedCount: 0,
+      spammers,
     };
     return noContentResult;
   }
@@ -310,9 +382,15 @@ export async function getPitfalls(
   // Fetch CONTRIBUTING.md for extra context
   const contributingGuide = await getContributingGuide(octokit, owner, repo);
 
-  // Build prompt and call AI
-  const prompt = buildPrompt(prsWithDetails, contributingGuide, owner, repo);
-  const result = await analyzeWithAI(prompt);
+  // Build prompt and call AI with legitimate PRs only
+  const prompt = buildPrompt(legitimatePRs, contributingGuide, owner, repo);
+  const aiResult = await analyzeWithAI(prompt);
+
+  // Combine AI result with detected spammers
+  const result: PitfallsResult = {
+    ...aiResult,
+    spammers,
+  };
 
   // Cache result
   if (redis) {
