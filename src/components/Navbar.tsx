@@ -21,6 +21,7 @@ import {
   FaBug,
   FaBox,
   FaChartLine,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import Link from "next/link";
 
@@ -32,9 +33,14 @@ export function Navbar() {
   const pathParts = pathname.split("/").filter(Boolean);
   const isAnalysisPage =
     pathParts.length >= 3 &&
-    ["prs", "issues", "dependencies", "activity", "overview"].includes(
-      pathParts[0]
-    );
+    [
+      "prs",
+      "issues",
+      "dependencies",
+      "activity",
+      "overview",
+      "pitfalls",
+    ].includes(pathParts[0]);
   const owner = isAnalysisPage ? pathParts[1] : null;
   const repo = isAnalysisPage ? pathParts[2] : null;
 
@@ -43,6 +49,7 @@ export function Navbar() {
     { href: "issues", label: "Issues", icon: FaBug },
     { href: "dependencies", label: "Dependencies", icon: FaBox },
     { href: "activity", label: "Activity", icon: FaChartLine },
+    { href: "pitfalls", label: "Insights", icon: FaExclamationTriangle },
   ];
 
   return (

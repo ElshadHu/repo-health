@@ -25,6 +25,7 @@ import { PRStatsCard } from "@/components/cards/PRStatsCard";
 import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
 import { ActivityCard } from "@/components/anomaly/ActivityCard";
 import { ProjectOverviewSection } from "@/components/overview";
+import { PitfallsSummaryCard } from "@/components/contributor/PitfallsSummaryCard";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const toaster = createToaster({
@@ -82,6 +83,15 @@ function HomePageContent() {
       retry: false,
       staleTime: 1000 * 60 * 5, // 5 min client cache
     });
+
+  const { data: pitfalls } = trpc.contributor.getPitfalls.useQuery(
+    searchParams!,
+    {
+      enabled: searchParams !== null,
+      retry: false,
+      staleTime: 1000 * 60 * 5,
+    }
+  );
 
   useEffect(() => {
     if (error && searchAttempt > 0) {
@@ -238,6 +248,26 @@ function HomePageContent() {
                     )}
                     {searchParams && (
                       <ActivityCard
+                        owner={searchParams.owner}
+                        repo={searchParams.repo}
+                      />
+                    )}
+                    {pitfalls && searchParams && (
+                      <PitfallsSummaryCard
+                        analyzedCount={pitfalls.analyzedCount}
+                        topCategories={Object.entries(
+                          pitfalls.analyses.reduce(
+                            (acc: Record<string, number>, item) => {
+                              acc[item.category] =
+                                (acc[item.category] || 0) + 1;
+                              return acc;
+                            },
+                            {}
+                          )
+                        )
+                          .map(([category, count]) => ({ category, count }))
+                          .sort((a, b) => b.count - a.count)}
+                        topPattern={pitfalls.patterns[0] || null}
                         owner={searchParams.owner}
                         repo={searchParams.repo}
                       />
