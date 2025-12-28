@@ -1,14 +1,15 @@
 # repo-health
 
-A tool for analyzing GitHub repository health, identifying vulnerable dependencies, and understanding contributor impact.
+A **contributor-first platform** for understanding GitHub repositories and making open source contributions easier. Designed to help contributors find the right issues, understand codebases faster, and avoid common pitfalls.
+
+> **Mission**: Make open source contribution less intimidating and more accessible for everyone.
 
 ## Features
 
 - **Health Score (0-100)** - Activity, maintenance, community, and documentation scores
 - **Dependency Analysis** - Scan for vulnerable packages across multiple ecosystems
 - **PR Analytics** - Merge times, author breakdown, AI reviewer detection
-- **Issue Analytics** - Crackability scores, hidden gems, hot issues
-- **Security Scanner** - Detect exposed secrets with 22 patterns + entropy analysis
+- **Issue Analytics** - Crackability scores, hidden gems, hot issues for finding contribution opportunities
 - **Activity Monitor** - Anomaly detection for commit patterns using Z-score analysis
 - **Project Overview** - AI-powered codebase visualization and file-issue mapping
 - **Contributor Journey** - Visualize first-time → returning → core contributor flow
@@ -47,7 +48,6 @@ src/
 │   ├── prs/                  # PR analytics
 │   ├── issues/               # Issue analytics
 │   ├── dependencies/         # Dependency analysis
-│   ├── security/             # Security scanner
 │   └── activity/             # Activity monitor
 ├── components/               # UI components
 │   ├── cards/                # Stat cards
@@ -63,7 +63,6 @@ src/
 │   │   ├── deps/             # Dependency analysis
 │   │   ├── prs/              # PR analysis
 │   │   ├── issues/           # Issue analysis
-│   │   ├── security/         # Secret scanner
 │   │   ├── anomaly/          # Activity anomaly detection
 │   │   ├── overview/         # AI-powered file-issue mapping
 │   │   └── user/             # User/auth services
@@ -115,7 +114,6 @@ Analyze pull request patterns and community contributor behavior.
 - [x] **AI Interaction Tracking** - Community wrestling with AI reviews
 - [x] **Search History** - Save searches for logged-in users, autocomplete with Fuse.js
 - [x] **Issue Analytics** - Crackability scores, hidden gems, hot issues
-- [x] **Security Scanner** - Detect exposed secrets with 22 regex patterns + entropy analysis
 - [x] **Activity Monitor** - Anomaly detection using Z-score analysis, burst detection, churn analysis
 - [x] **Project Overview** - D3 architecture diagram with AI-powered file-issue mapping
 
@@ -171,68 +169,7 @@ Score = (labelScore × 0.3) + (lengthScore × 0.2) + (ageScore × 0.2) + (reacti
 
 ---
 
-## Security Scanner
-
-Detect exposed secrets (API keys, tokens, passwords) in public repositories.
-
-**Note:** I'm exploring how secret detection works. It may show false positives (like Slack invite URLs being flagged as secrets). This is just informational and meant for potential issues.
-
-### Detection Methods
-
-| Method          | Description                          | Source                                                      |
-| --------------- | ------------------------------------ | ----------------------------------------------------------- |
-| Regex Patterns  | 22 patterns for known secret formats | [Gitleaks](https://github.com/gitleaks/gitleaks)            |
-| Shannon Entropy | Detect high-randomness strings       | [TruffleHog](https://github.com/trufflesecurity/trufflehog) |
-| Masking         | Never expose full secrets            | OWASP Guidelines                                            |
-
-### Secret Patterns Detected
-
-| Category     | Examples                      | Severity |
-| ------------ | ----------------------------- | -------- |
-| AWS          | `AKIA...`, Secret Access Key  | Critical |
-| GitHub       | `ghp_`, `gho_`, `ghs_` tokens | High     |
-| Stripe       | `sk_live_`, `pk_live_`        | Critical |
-| Google Cloud | `AIza...`, Service Account    | High     |
-| Private Keys | RSA, OpenSSH, EC              | Critical |
-| Database     | MongoDB URI, PostgreSQL URI   | High     |
-| Generic      | Passwords, API keys, tokens   | Medium   |
-
-### Entropy Detection
-
-Shannon entropy measures string randomness:
-
-```
-H(X) = -Σ p(x) × log₂(p(x))
-```
-
-| Entropy   | Interpretation  |
-| --------- | --------------- |
-| < 3.0     | Normal text     |
-| 3.0 - 4.0 | Possibly random |
-| > 4.5     | Likely a secret |
-
-### Security Score
-
-```
-Score = 100 - Σ(severityPenalty)
-```
-
-| Severity | Penalty |
-| -------- | ------- |
-| Critical | -25     |
-| High     | -15     |
-| Medium   | -8      |
-| Low      | -3      |
-
-### Security Grades
-
-| Grade | Score  | Meaning            |
-| ----- | ------ | ------------------ |
-| A     | 90-100 | Clean              |
-| B     | 75-89  | Minor issues       |
-| C     | 60-74  | Needs attention    |
-| D     | 40-59  | Significant issues |
-| F     | 0-39   | Critical problems  |
+> **Note on Security Scanner**: This project previously included a secret detection feature inspired by [Gitleaks](https://github.com/gitleaks/gitleaks) and [TruffleHog](https://github.com/trufflesecurity/trufflehog). While it was a great learning experience exploring regex patterns and Shannon entropy, it didn't align with the core mission of helping open source contributors. The feature has been removed to keep the project focused.
 
 ---
 
