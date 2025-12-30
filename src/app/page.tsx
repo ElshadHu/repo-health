@@ -93,6 +93,15 @@ function HomePageContent() {
     }
   );
 
+  const { data: fundingInfo } = trpc.funding.getFunding.useQuery(
+    searchParams!,
+    {
+      enabled: searchParams !== null,
+      retry: false,
+      staleTime: 1000 * 60 * 10,
+    }
+  );
+
   useEffect(() => {
     if (error && searchAttempt > 0) {
       setTimeout(() => {
@@ -200,6 +209,7 @@ function HomePageContent() {
                   openIssues: data.repository.openIssues || 0,
                 }}
                 languages={data.languages}
+                fundingLinks={fundingInfo?.links}
               />
 
               {/* Project Overview - Full Width Section */}

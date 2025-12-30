@@ -1,0 +1,1 @@
+export { fundingService } from "./funding";

@@ -8,6 +8,7 @@ import { issueRouter } from "../server/routers/issueRouter";
 import { anomalyRouter } from "../server/routers/anomalyRouter";
 import { overviewRouter } from "../server/routers/overviewRouter";
 import { contributorRouter } from "../server/routers/contributorRouter";
+import { fundingRouter } from "../server/routers/fundingRouter";
 
 export const appRouter = router({
   repo: repoRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   anomaly: anomalyRouter,
   overview: overviewRouter,
   contributor: contributorRouter,
+  funding: fundingRouter,
 });
 
 export type AppRouter = typeof appRouter;

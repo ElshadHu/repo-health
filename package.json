@@ -31,6 +31,7 @@
     "framer-motion": "^12.23.26",
     "fuse.js": "^7.1.0",
     "ioredis": "^5.8.2",
+    "js-yaml": "^4.1.1",
     "lucide-react": "^0.561.0",
     "mariadb": "^3.4.5",
     "next": "16.0.10",
@@ -46,6 +47,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -5,8 +5,11 @@ import {
   Badge,
   HStack,
   SimpleGrid,
+  Flex,
 } from "@chakra-ui/react";
 import { FaStar, FaCodeBranch, FaCode, FaBug } from "react-icons/fa";
+import { SponsorButton } from "@/components/funding";
+import type { FundingLink } from "@/server/types";
 
 type RepoStats = {
   stars: number;
@@ -21,12 +24,14 @@ export function RepositoryCard({
   language,
   stats,
   languages,
+  fundingLinks,
 }: {
   name: string;
   description?: string | null;
   language?: string | null;
   stats?: RepoStats;
   languages?: Record<string, number>;
+  fundingLinks?: FundingLink[];
 }) {
   return (
     <Box bg="#161b22" border="1px solid #30363d" p={6} borderRadius="lg">
@@ -52,70 +57,85 @@ export function RepositoryCard({
         )}
       </Box>
 
-      {/* Stats Row */}
+      {/* Stats Row with Sponsor Button */}
       {stats && (
-        <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} mb={4}>
-          <HStack
-            bg="#0d1117"
-            border="1px solid #30363d"
-            p={3}
-            borderRadius="md"
-            justify="center"
-          >
-            <FaStar color="#d29922" />
-            <Text color="#c9d1d9" fontWeight="600">
-              {stats.stars.toLocaleString()}
-            </Text>
-            <Text color="#6e7681" fontSize="xs">
-              stars
-            </Text>
-          </HStack>
-          <HStack
-            bg="#0d1117"
-            border="1px solid #30363d"
-            p={3}
-            borderRadius="md"
-            justify="center"
-          >
-            <FaCodeBranch color="#8b949e" />
-            <Text color="#c9d1d9" fontWeight="600">
-              {stats.forks.toLocaleString()}
-            </Text>
-            <Text color="#6e7681" fontSize="xs">
-              forks
-            </Text>
-          </HStack>
-          <HStack
-            bg="#0d1117"
-            border="1px solid #30363d"
-            p={3}
-            borderRadius="md"
-            justify="center"
-          >
-            <FaCode color="#238636" />
-            <Text color="#c9d1d9" fontWeight="600">
-              {stats.commits.toLocaleString()}
-            </Text>
-            <Text color="#6e7681" fontSize="xs">
-              commits
-            </Text>
-          </HStack>
-          <HStack
-            bg="#0d1117"
-            border="1px solid #30363d"
-            p={3}
-            borderRadius="md"
-            justify="center"
-          >
-            <FaBug color="#f85149" />
-            <Text color="#c9d1d9" fontWeight="600">
-              {stats.openIssues.toLocaleString()}
-            </Text>
-            <Text color="#6e7681" fontSize="xs">
-              issues
-            </Text>
-          </HStack>
-        </SimpleGrid>
+        <Flex gap={3} mb={4} align="center" wrap="wrap">
+          <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} flex="1">
+            <HStack
+              bg="#0d1117"
+              border="1px solid #30363d"
+              px={4}
+              py={3}
+              borderRadius="md"
+              justify="center"
+              minW="140px"
+            >
+              <FaStar color="#d29922" size={14} />
+              <Text color="#c9d1d9" fontWeight="600" fontSize="md">
+                {stats.stars.toLocaleString()}
+              </Text>
+              <Text color="#6e7681" fontSize="sm">
+                stars
+              </Text>
+            </HStack>
+            <HStack
+              bg="#0d1117"
+              border="1px solid #30363d"
+              px={4}
+              py={3}
+              borderRadius="md"
+              justify="center"
+              minW="140px"
+            >
+              <FaCodeBranch color="#8b949e" size={14} />
+              <Text color="#c9d1d9" fontWeight="600" fontSize="md">
+                {stats.forks.toLocaleString()}
+              </Text>
+              <Text color="#6e7681" fontSize="sm">
+                forks
+              </Text>
+            </HStack>
+            <HStack
+              bg="#0d1117"
+              border="1px solid #30363d"
+              px={4}
+              py={3}
+              borderRadius="md"
+              justify="center"
+              minW="140px"
+            >
+              <FaCode color="#238636" size={14} />
+              <Text color="#c9d1d9" fontWeight="600" fontSize="md">
+                {stats.commits.toLocaleString()}
+              </Text>
+              <Text color="#6e7681" fontSize="sm">
+                commits
+              </Text>
+            </HStack>
+            <HStack
+              bg="#0d1117"
+              border="1px solid #30363d"
+              px={4}
+              py={3}
+              borderRadius="md"
+              justify="center"
+              minW="140px"
+            >
+              <FaBug color="#f85149" size={14} />
+              <Text color="#c9d1d9" fontWeight="600" fontSize="md">
+                {stats.openIssues.toLocaleString()}
+              </Text>
+              <Text color="#6e7681" fontSize="sm">
+                issues
+              </Text>
+            </HStack>
+          </SimpleGrid>
+
+          {/* Sponsor Button */}
+          {fundingLinks && fundingLinks.length > 0 && (
+            <SponsorButton links={fundingLinks} />
+          )}
+        </Flex>
       )}
 
       {/* Languages */}

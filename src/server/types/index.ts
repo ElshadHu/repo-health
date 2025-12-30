@@ -1,4 +1,5 @@
 export * from "./contributor";
+export * from "./funding";
 
 export type RepoInfo = {
   name: string;
