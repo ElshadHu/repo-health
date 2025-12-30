@@ -125,6 +125,9 @@ function HomePageContent() {
     }
   }, [searchAttempt, error, status]);
 
+  const recordSearchMutation = trpc.rateLimit.recordSearch.useMutation();
+  const utils = trpc.useUtils();
+
   // Save search after being sure if repo is private
   useEffect(() => {
     if (data && searchParams && isSignedIn) {
@@ -139,9 +142,6 @@ function HomePageContent() {
       recordSearchMutation.mutate();
     }
   }, [data, searchParams, isSignedIn]);
-
-  const recordSearchMutation = trpc.rateLimit.recordSearch.useMutation();
-  const utils = trpc.useUtils();
 
   const handleSearch = async (owner: string, repo: string) => {
     // Check rate limit for anonymous users
