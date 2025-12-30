@@ -134,9 +134,41 @@ function HomePageContent() {
         isPrivate: data.repository.isPrivate ?? false,
       });
     }
+    // Record rate limit only after successful search for anonymous users
+    if (data && searchParams && !isSignedIn) {
+      recordSearchMutation.mutate();
+    }
   }, [data, searchParams, isSignedIn]);
 
-  const handleSearch = (owner: string, repo: string) => {
+  const recordSearchMutation = trpc.rateLimit.recordSearch.useMutation();
+  const utils = trpc.useUtils();
+
+  const handleSearch = async (owner: string, repo: string) => {
+    // Check rate limit for anonymous users
+    if (status !== "authenticated") {
+      try {
+        const rateLimitCheck = await utils.rateLimit.checkLimit.fetch();
+        if (!rateLimitCheck.allowed) {
+          const minutes = Math.ceil(
+            (rateLimitCheck.retryAfterSeconds || 0) / 60
+          );
+          toaster.create({
+            title: "Free search used",
+            description: `One more step! Sign in with GitHub to keep searching, or come back in ${minutes} minute${minutes !== 1 ? "s" : ""}.`,
+            type: "info",
+            action: {
+              label: "Sign in",
+              onClick: () => signIn("github"),
+            },
+          });
+          return;
+        }
+      } catch (error) {
+        // If rate limit check fails, allow the search
+        console.error("Rate limit check failed:", error);
+      }
+    }
+
     setSearchParams({ owner, repo });
     setSearchAttempt((prev) => prev + 1);
     router.push(`/?owner=${owner}&repo=${repo}`, { scroll: false });
