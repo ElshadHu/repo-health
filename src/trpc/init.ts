@@ -3,10 +3,11 @@ import superjson from "superjson";
 import { auth } from "@/lib/auth";
 
 // Context: shared resources available to all procedures
-export const createTRPCContext = async () => {
+export const createTRPCContext = async (opts?: { clientIp?: string }) => {
   const session = await auth();
   return {
     session,
+    clientIp: opts?.clientIp || null,
   };
 };
 
