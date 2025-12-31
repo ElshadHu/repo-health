@@ -27,10 +27,14 @@ git remote add upstream https://github.com/ElshadHu/repo-health.git
 # 4. Install dependencies
 npm install
 
-# 5. Run database migrations
+# 5. Set up environment variables
+cp .env.example .env
+# Edit .env and fill in your values (see table below)
+
+# 6. Run database migrations
 npx prisma db push
 
-# 6. Start development server
+# 7. Start development server
 npm run dev
 ```
 
