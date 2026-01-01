@@ -214,6 +214,7 @@ export function Navbar() {
               </Menu.Root>
             ) : (
               <Button
+                className="sign-in-btn"
                 size="sm"
                 bg="#238636"
                 color="white"
