@@ -27,7 +27,14 @@ export function EntryPointsList({
     `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${path}`;
 
   return (
-    <Box bg="#161b22" border="1px solid #30363d" borderRadius="lg" p={6}>
+    <Box
+      bg="#161b22"
+      border="1px solid #30363d"
+      borderRadius="lg"
+      p={6}
+      overflow="hidden"
+      minWidth={0}
+    >
       <HStack gap={2} mb={4}>
         <FaDoorOpen color="#f85149" size={18} />
         <Text fontSize="lg" fontWeight="600" color="#c9d1d9">
@@ -43,14 +50,19 @@ export function EntryPointsList({
             borderBottom="1px solid #21262d"
             pb={3}
           >
-            <Box>
+            <Box minWidth={0} flex={1}>
               <a
                 href={githubUrl(ep.path)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                <Text color="#58a6ff" fontFamily="mono" fontSize="sm">
+                <Text
+                  color="#58a6ff"
+                  fontFamily="mono"
+                  fontSize="sm"
+                  wordBreak="break-word"
+                >
                   {ep.path}
                 </Text>
                 <FaExternalLinkAlt size={10} color="#8b949e" />
