@@ -23,7 +23,14 @@ export function WhereToLook({
     `https://github.com/${owner}/${repo}/blob/${defaultBranch}/${path}`;
 
   return (
-    <Box bg="#161b22" border="1px solid #30363d" borderRadius="lg" p={6}>
+    <Box
+      bg="#161b22"
+      border="1px solid #30363d"
+      borderRadius="lg"
+      p={6}
+      overflow="hidden"
+      minWidth={0}
+    >
       <HStack gap={2} mb={4}>
         <FaSearch color="#d29922" size={18} />
         <Text fontSize="lg" fontWeight="600" color="#c9d1d9">
@@ -60,6 +67,8 @@ export function WhereToLook({
                     borderRadius="md"
                     _hover={{ bg: "#30363d" }}
                     cursor="pointer"
+                    wordBreak="break-word"
+                    whiteSpace="normal"
                   >
                     {file}
                   </Badge>
