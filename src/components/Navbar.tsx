@@ -62,9 +62,19 @@ export function Navbar() {
       zIndex={1000}
     >
       <Container maxW="container.xl">
-        <HStack justify="space-between" align="center">
+        <HStack
+          justify="space-between"
+          align="center"
+          overflow="hidden"
+          minWidth={0}
+        >
           {/* Left: Logo + Home */}
-          <HStack gap={6}>
+          <HStack
+            gap={{ base: 2, md: 6 }}
+            minWidth={0}
+            flex={1}
+            overflow="hidden"
+          >
             <Link href={owner && repo ? `/?owner=${owner}&repo=${repo}` : "/"}>
               <HStack
                 gap={2}
@@ -72,7 +82,15 @@ export function Navbar() {
                 transition="opacity 0.2s"
               >
                 <Text fontSize="2xl" fontWeight="bold" color="#c9d1d9">
-                  🩺 Repo Health
+                  🩺
+                </Text>
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  color="#c9d1d9"
+                  display={{ base: "none", md: "block" }}
+                >
+                  Repo Health
                 </Text>
               </HStack>
             </Link>
@@ -85,7 +103,11 @@ export function Navbar() {
                 transition="color 0.2s"
               >
                 <FaHome size={16} />
-                <Text fontSize="md" fontWeight="medium">
+                <Text
+                  fontSize="md"
+                  fontWeight="medium"
+                  display={{ base: "none", sm: "block" }}
+                >
                   Home
                 </Text>
               </HStack>
@@ -102,12 +124,23 @@ export function Navbar() {
                     color="#58a6ff"
                     _hover={{ bg: "rgba(88, 166, 255, 0.1)" }}
                   >
-                    <HStack gap={1}>
-                      <FaGithub size={16} />
-                      <Text fontSize="md" fontWeight="medium">
+                    <HStack
+                      gap={1}
+                      minWidth={0}
+                      maxWidth={{ base: "120px", sm: "200px", md: "none" }}
+                    >
+                      <FaGithub size={16} style={{ flexShrink: 0 }} />
+                      <Text
+                        fontSize="md"
+                        fontWeight="medium"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        minWidth={0}
+                      >
                         {owner}/{repo}
                       </Text>
-                      <FaChevronDown size={12} />
+                      <FaChevronDown size={12} style={{ flexShrink: 0 }} />
                     </HStack>
                   </Button>
                 </Menu.Trigger>
@@ -172,19 +205,32 @@ export function Navbar() {
                     bg="transparent"
                     _hover={{ bg: "rgba(88, 166, 255, 0.1)" }}
                   >
-                    <HStack gap={2}>
+                    <HStack gap={2} minWidth={0}>
                       {session.user.image && (
                         <Image
                           src={session.user.image}
                           alt="Avatar"
                           boxSize="32px"
                           borderRadius="full"
+                          flexShrink={0}
                         />
                       )}
-                      <Text fontSize="md" color="#c9d1d9">
-                        {session.user.name}
+                      <Text
+                        fontSize="md"
+                        color="#c9d1d9"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                        whiteSpace="nowrap"
+                        maxWidth={{ base: "80px", sm: "150px", md: "none" }}
+                        display={{ base: "none", sm: "block" }}
+                      >
+                        {session.user.name?.split(" ")[0]}
                       </Text>
-                      <FaChevronDown size={12} color="#8b949e" />
+                      <FaChevronDown
+                        size={12}
+                        color="#8b949e"
+                        style={{ flexShrink: 0 }}
+                      />
                     </HStack>
                   </Button>
                 </Menu.Trigger>
