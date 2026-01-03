@@ -112,7 +112,14 @@ export function ProjectOverviewSection({ owner, repo }: Props) {
         </HStack>
 
         {/* Grid Layout */}
-        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} my={6}>
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
+          gap={4}
+          my={6}
+          overflow="hidden"
+          width="100%"
+          minWidth={0}
+        >
           <EntryPointsList
             entryPoints={analysis.entryPoints}
             owner={owner}
