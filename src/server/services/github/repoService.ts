@@ -1,6 +1,7 @@
 import { cacheService } from "@/lib/redis";
 import { RepoInfo } from "../../types";
 import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
+import { fetchUnghRepo } from "@/lib/ungh";
 
 export async function getRepoInfo(
   owner: string,
@@ -24,7 +25,30 @@ export async function getRepoInfo(
     }
     return cached;
   }
+  // Try UNGH first for unauthenticated users - public repo
 
+  if (!accessToken) {
+    const unghData = await fetchUnghRepo(owner, repo);
+    if (unghData) {
+      const result: RepoInfo = {
+        name: unghData.name,
+        owner: owner,
+        description: unghData.description,
+        url: `https://github.com/${owner}/${repo}`,
+        stars: unghData.stars,
+        forks: unghData.forks,
+        language: null, // UNGH doesn't provide language
+        openIssues: 0, // UNGH doesn't provide this
+        defaultBranch: unghData.defaultBranch,
+        createdAt: unghData.createdAt,
+        updatedAt: unghData.updatedAt,
+        isPrivate: false, // UNGH only returns public repos
+      };
+      await cacheService.set(cacheKey, result, CACHE_TTL.REPO_INFO);
+      return result;
+    }
+  }
+  // here we go, in fallback condition GitHub API (for auth users or if UNGH fails)
   const octokit = createOctokit(accessToken);
 
   try {
