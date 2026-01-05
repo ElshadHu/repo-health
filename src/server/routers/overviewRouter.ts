@@ -23,8 +23,13 @@ export const overviewRouter = router({
         calculateHealthScore(owner, repo, accessToken),
         githubService.getRepoInfo(owner, repo, accessToken),
       ]);
-      // 1. Fetch file tree
-      const allFiles = await fetchFileTree(octokit, owner, repo);
+      // 1. Fetch file tree (use UNGH for public repos, GitHub API for private)
+      const allFiles = await fetchFileTree(
+        accessToken ? octokit : null,
+        owner,
+        repo,
+        repoInfo.defaultBranch
+      );
       const importantFiles = filterImportantFiles(allFiles);
 
       // 2. Fetch key files
