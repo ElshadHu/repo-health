@@ -1,11 +1,25 @@
 import { Octokit } from "@octokit/rest";
 import type { FileNode } from "@/server/types";
+import { fetchUnghFiles } from "@/lib/ungh";
 
 export async function fetchFileTree(
-  octokit: Octokit,
+  octokit: Octokit | null,
   owner: string,
-  repo: string
+  repo: string,
+  defaultBranch?: string
 ): Promise<FileNode[]> {
+  if (!octokit) {
+    const unghFiles = await fetchUnghFiles(owner, repo, defaultBranch);
+    if (unghFiles.length > 0) {
+      return unghFiles.map((f) => ({
+        path: f.path,
+        type: f.size !== undefined ? "blob" : "tree",
+        size: f.size,
+      }));
+    }
+  }
+  // Fallback to GitHub API
+  if (!octokit) return [];
   try {
     const { data } = await octokit.git.getTree({
       owner,
