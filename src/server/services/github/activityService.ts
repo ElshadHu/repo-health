@@ -1,6 +1,7 @@
 import { cacheService } from "@/lib/redis";
 import { Commit, Contributor } from "../../types";
 import { createOctokit, CACHE_TTL, getTokenHash } from "./shared";
+import { fetchUnghContributors } from "@/lib/ungh";
 
 export async function getCommits(
   owner: string,
@@ -46,11 +47,28 @@ export async function getContributors(
   repo: string,
   accessToken?: string | null
 ): Promise<Contributor[]> {
-  const octokit = createOctokit(accessToken);
   const tokenHash = getTokenHash(accessToken);
   const cacheKey = `repo:contributors:${owner}:${repo}:${tokenHash}`;
   const cached = await cacheService.get<Contributor[]>(cacheKey);
   if (cached) return cached;
+
+  // Try UNGH first for unauthenticated requests (public repos)
+  if (!accessToken) {
+    const unghContributors = await fetchUnghContributors(owner, repo);
+    if (unghContributors.length > 0) {
+      const result = unghContributors.slice(0, 20).map((c) => ({
+        username: c.username,
+        avatarUrl: `https://github.com/${c.username}.png`,
+        contributions: c.contributions,
+        url: `https://github.com/${c.username}`,
+      }));
+      await cacheService.set(cacheKey, result, CACHE_TTL.CONTRIBUTORS);
+      return result;
+    }
+  }
+
+  // Fallback to GitHub API  for auth and just in case UNGH fails
+  const octokit = createOctokit(accessToken);
 
   try {
     const { data } = await octokit.rest.repos.listContributors({
