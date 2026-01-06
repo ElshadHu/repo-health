@@ -275,58 +275,11 @@ export function ArchitectureDiagram({
       .attr("class", "node")
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
-    nodes
-      .append("rect")
-      .attr("x", -8)
-      .attr("y", -10)
-      .attr("width", (d) => {
-        const textLen = d.data.name.length * 7 + 30;
-        return Math.min(textLen, 180);
-      })
-      .attr("height", 20)
-      .attr("rx", 4)
-      .attr("fill", (d) => {
-        const isHighlighted = highlightedPath === d.data.path;
-        if (isHighlighted) return "#ffc107";
-        const color =
-          FOLDER_COLORS[d.data.name] || (d.children ? "#30363d" : "#21262d");
-        return color + (d.children ? "44" : "88");
-      })
-      .attr("stroke", (d) => {
-        const isHighlighted = highlightedPath === d.data.path;
-        if (isHighlighted) return "#ffc107";
-        return (
-          FOLDER_COLORS[d.data.name] || (d.children ? "#8b949e" : "#58a6ff")
-        );
-      })
-      .attr("stroke-width", (d) => (highlightedPath === d.data.path ? 2 : 1))
-      .style("cursor", "pointer")
-      .on("click", (_, d) => {
-        if (!d.children && d.data.path) {
-          if (fileIssueMap[d.data.path]) {
-            setSelectedFile(d.data.path);
-          } else {
-            window.open(
-              `https://github.com/${owner}/${repo}/blob/main/${d.data.path}`,
-              "_blank"
-            );
-          }
-        }
-      });
+    const getDisplayName = (name: string): string => {
+      return name.length > 16 ? name.slice(0, 13) + "..." : name;
+    };
 
-    // Icons using SVG symbols instead of emojis (fixes hydration error)
-    nodes
-      .append("rect")
-      .attr("x", -5)
-      .attr("y", -6)
-      .attr("width", 10)
-      .attr("height", 10)
-      .attr("rx", 2)
-      .attr("fill", (d) => (d.children ? "#ffa657" : "#58a6ff"))
-      .attr("opacity", 0.8);
-
-    // Labels
-    nodes
+    const textElements = nodes
       .append("text")
       .attr("x", 14)
       .attr("y", 4)
@@ -336,22 +289,83 @@ export function ArchitectureDiagram({
       .attr("font-size", 11)
       .attr("font-family", "monospace")
       .style("cursor", "pointer")
-      .text((d) => {
-        const name = d.data.name;
-        return name.length > 20 ? name.slice(0, 18) + "..." : name;
+      .text((d) => getDisplayName(d.data.name));
+
+    nodes.each(function () {
+      const node = d3.select(this);
+      const text = node.select("text");
+      const textNode = text.node() as SVGTextElement;
+      const bbox = textNode.getBBox();
+      
+      node.insert("rect", "text")
+        .attr("x", -8)
+        .attr("y", -10)
+        .attr("width", bbox.width + 26) // 14px left offset + 12px right padding
+        .attr("height", 20)
+        .attr("rx", 4);
+    });
+
+    // Style the rects
+    nodes.selectAll("rect")
+      .attr("fill", (d) => {
+        const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
+        const isHighlighted = highlightedPath === data.path;
+        if (isHighlighted) return "#ffc107";
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
+        const color = FOLDER_COLORS[data.name] || (hasChildren ? "#30363d" : "#21262d");
+        return color + (hasChildren ? "44" : "88");
       })
+      .attr("stroke", (d) => {
+        const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
+        const isHighlighted = highlightedPath === data.path;
+        if (isHighlighted) return "#ffc107";
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
+        return FOLDER_COLORS[data.name] || (hasChildren ? "#8b949e" : "#58a6ff");
+      })
+      .attr("stroke-width", (d) => {
+        const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
+        return highlightedPath === data.path ? 2 : 1;
+      })
+      .style("cursor", "pointer")
       .on("click", (_, d) => {
-        if (!d.children && d.data.path) {
-          if (fileIssueMap[d.data.path]) {
-            setSelectedFile(d.data.path);
+        const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
+        if (!hasChildren && data.path) {
+          if (fileIssueMap[data.path]) {
+            setSelectedFile(data.path);
           } else {
             window.open(
-              `https://github.com/${owner}/${repo}/blob/main/${d.data.path}`,
+              `https://github.com/${owner}/${repo}/blob/main/${data.path}`,
               "_blank"
             );
           }
         }
       });
+
+    textElements.on("click", (_, d) => {
+      if (!d.children && d.data.path) {
+        if (fileIssueMap[d.data.path]) {
+          setSelectedFile(d.data.path);
+        } else {
+          window.open(
+            `https://github.com/${owner}/${repo}/blob/main/${d.data.path}`,
+            "_blank"
+          );
+        }
+      }
+    });
+
+    // Icons using SVG symbols instead of emojis (fixes hydration error)
+    nodes
+      .append("rect")
+      .attr("class", "icon")
+      .attr("x", -5)
+      .attr("y", -6)
+      .attr("width", 10)
+      .attr("height", 10)
+      .attr("rx", 2)
+      .attr("fill", (d) => (d.children ? "#ffa657" : "#58a6ff"))
+      .attr("opacity", 0.8);
 
     // Red badge for files with issues (positioned BEFORE the file icon)
     nodes.each(function (d) {
