@@ -162,6 +162,17 @@ export type PRStats = {
   hotPRs: HotPR[];
   contributorFunnel?: ContributorFunnel;
   aiInteractionStats?: AIInteractionStats;
+  mergeTimeChart?: PRMergeTimeChart;
+};
+
+export type PRMergeTimeChart = {
+  monthly: { month: string; avgDays: number; count: number }[];
+  comparison: {
+    communityAvg: number;
+    maintainerAvg: number;
+    diffPercent: number;
+  };
+  trend: { direction: "up" | "down" | "flat"; change: number };
 };
 
 export type ContributorFunnel = {
