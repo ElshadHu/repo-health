@@ -296,8 +296,9 @@ export function ArchitectureDiagram({
       const text = node.select("text");
       const textNode = text.node() as SVGTextElement;
       const bbox = textNode.getBBox();
-      
-      node.insert("rect", "text")
+
+      node
+        .insert("rect", "text")
         .attr("x", -8)
         .attr("y", -10)
         .attr("width", bbox.width + 26) // 14px left offset + 12px right padding
@@ -306,21 +307,27 @@ export function ArchitectureDiagram({
     });
 
     // Style the rects
-    nodes.selectAll("rect")
+    nodes
+      .selectAll("rect")
       .attr("fill", (d) => {
         const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
         const isHighlighted = highlightedPath === data.path;
         if (isHighlighted) return "#ffc107";
-        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
-        const color = FOLDER_COLORS[data.name] || (hasChildren ? "#30363d" : "#21262d");
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>)
+          .children;
+        const color =
+          FOLDER_COLORS[data.name] || (hasChildren ? "#30363d" : "#21262d");
         return color + (hasChildren ? "44" : "88");
       })
       .attr("stroke", (d) => {
         const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
         const isHighlighted = highlightedPath === data.path;
         if (isHighlighted) return "#ffc107";
-        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
-        return FOLDER_COLORS[data.name] || (hasChildren ? "#8b949e" : "#58a6ff");
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>)
+          .children;
+        return (
+          FOLDER_COLORS[data.name] || (hasChildren ? "#8b949e" : "#58a6ff")
+        );
       })
       .attr("stroke-width", (d) => {
         const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
@@ -329,7 +336,8 @@ export function ArchitectureDiagram({
       .style("cursor", "pointer")
       .on("click", (_, d) => {
         const data = (d as d3.HierarchyPointNode<HierarchyNode>).data;
-        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>).children;
+        const hasChildren = (d as d3.HierarchyPointNode<HierarchyNode>)
+          .children;
         if (!hasChildren && data.path) {
           if (fileIssueMap[data.path]) {
             setSelectedFile(data.path);
