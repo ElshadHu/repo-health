@@ -20,6 +20,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@nivo/heatmap": "^0.99.0",
+    "@nivo/line": "^0.99.0",
     "@nivo/sankey": "^0.99.0",
     "@octokit/rest": "^22.0.1",
     "@prisma/adapter-mariadb": "^7.1.0",
