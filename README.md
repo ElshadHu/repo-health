@@ -84,13 +84,14 @@ src/
 
 Analyze pull request patterns and community contributor behavior.
 
-| Metric                | Description                               | Data Source           |
-| --------------------- | ----------------------------------------- | --------------------- |
-| Total PRs             | Open, closed, and merged counts           | GitHub Pulls API      |
-| Merge Time            | Average and median time to merge          | PR timestamps         |
-| Author Breakdown      | Maintainers vs Community vs Bots          | author_association    |
-| AI Reviewer Detection | Comments from CodeRabbit, Dependabot, etc | Issue/Review comments |
-| Contributor Journey   | First-time → Returning → Regular → Core   | PR author history     |
+| Metric                | Description                                  | Data Source           |
+| --------------------- | -------------------------------------------- | --------------------- |
+| Total PRs             | Open, closed, and merged counts              | GitHub Pulls API      |
+| Merge Time            | Average and median time to merge             | PR timestamps         |
+| Merge Time Chart      | Monthly trend + community vs maintainer wait | PR timestamps         |
+| Author Breakdown      | Maintainers vs Community vs Bots             | author_association    |
+| AI Reviewer Detection | Comments from CodeRabbit, Dependabot, etc    | Issue/Review comments |
+| Contributor Journey   | First-time → Returning → Regular → Core      | PR author history     |
 
 ### AI Bots Detected
 
@@ -115,6 +116,7 @@ Analyze pull request patterns and community contributor behavior.
 - [x] Related PRs search
 - [x] Issue existence check
 - [x] PR Analytics - Merge times, author breakdown, AI detection
+- [x] Merge Time Chart - Monthly trend visualization with community vs maintainer comparison
 - [x] Contributor Journey - Sankey diagram visualization
 - [x] AI Interaction Tracking - Community wrestling with AI reviews
 - [x] Search History - Save searches for logged-in users
