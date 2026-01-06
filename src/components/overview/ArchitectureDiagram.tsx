@@ -190,17 +190,18 @@ export function ArchitectureDiagram({
       1200,
       containerRef.current.clientHeight || 600
     );
+    const viewportWidth = containerRef.current.clientWidth / 2;
 
     const zoom = d3
       .zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 3])
       .extent([
         [0, 0],
-        [width, viewportHeight],
+        [viewportWidth, viewportHeight],
       ])
       .translateExtent([
-        [-200, 0],
-        [contentWidth + 200, contentHeight],
+        [-200, -20],
+        [contentWidth, contentHeight],
       ])
       .on("zoom", (event) => {
         // Apply zoom transform - keep initial offset fixed, only apply zoom transform
@@ -246,9 +247,20 @@ export function ArchitectureDiagram({
     // Disable double-click zoom explicitly
     svg.on("dblclick.zoom", null);
 
-    // Set initial transform
+    // Set initial transform - zoom to 50% on mobile devices
+    const isMobile = viewportWidth < 768;
+    const initialScale = isMobile ? 0.5 : 1;
+
     g.attr("transform", `translate(${initialX}, ${initialY})`);
-    svg.call(zoom.transform, d3.zoomIdentity);
+
+    if (isMobile) {
+      // Apply initial zoom of 50% for mobile
+      const initialTransform = d3.zoomIdentity.scale(initialScale);
+      svg.call(zoom.transform, initialTransform);
+      setZoomLevel(initialScale);
+    } else {
+      svg.call(zoom.transform, d3.zoomIdentity);
+    }
 
     g.selectAll(".link")
       .data(treeRoot.links())
