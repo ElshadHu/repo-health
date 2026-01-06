@@ -354,8 +354,12 @@ export function ArchitectureDiagram({
           if (fileIssueMap[data.path]) {
             setSelectedFile(data.path);
           } else {
+            const encodedPath = data.path
+              .split("/")
+              .map(encodeURIComponent)
+              .join("/");
             window.open(
-              `https://github.com/${owner}/${repo}/blob/main/${data.path}`,
+              `https://github.com/${owner}/${repo}/blob/main/${encodedPath}`,
               "_blank"
             );
           }
@@ -367,8 +371,12 @@ export function ArchitectureDiagram({
         if (fileIssueMap[d.data.path]) {
           setSelectedFile(d.data.path);
         } else {
+          const encodedPath = d.data.path
+            .split("/")
+            .map(encodeURIComponent)
+            .join("/");
           window.open(
-            `https://github.com/${owner}/${repo}/blob/main/${d.data.path}`,
+            `https://github.com/${owner}/${repo}/blob/main/${encodedPath}`,
             "_blank"
           );
         }
