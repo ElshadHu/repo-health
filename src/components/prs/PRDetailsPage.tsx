@@ -3,6 +3,7 @@
 import {
   Box,
   Grid,
+  GridItem,
   Text,
   VStack,
   HStack,
@@ -36,6 +37,7 @@ import { Button } from "@chakra-ui/react";
 import type { PRStats } from "@/server/types";
 import { ContributorSankey } from "./ContributorSankey";
 import { AIInteractionCard } from "./AIInteractionCard";
+import { MergeTimeChart } from "./MergeTimeChart";
 
 const COLORS = {
   merged: "#238636",
@@ -309,37 +311,79 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
         </ChartCard>
       </Grid>
 
+      {/* Time to Merge */}
       <ChartCard title="Time to Merge">
-        <ResponsiveContainer width="100%" height={150}>
-          <BarChart data={mergeTimeData} layout="vertical">
-            <XAxis type="number" stroke="#6e7681" fontSize={12} />
-            <YAxis
-              type="category"
-              dataKey="name"
-              stroke="#6e7681"
-              fontSize={12}
-              width={60}
-            />
-            <Tooltip
-              contentStyle={{
-                background: "#161b22",
-                border: "1px solid #30363d",
-              }}
-              formatter={(value) => {
-                if (value === undefined) return ["N/A"];
-                return [
-                  `${value} hours (${Math.round(Number(value) / 24)} days)`,
-                ];
-              }}
-            />
-            <Bar dataKey="hours" fill="#58a6ff" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-        <Text color="#6e7681" fontSize="xs" mt={3}>
-          📊 Calculated from {stats.merged} merged PRs. Measures time from PR
-          creation to merge.
-          {stats.merged === 0 && " No merged PRs yet to calculate merge time."}
-        </Text>
+        <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4}>
+          {/* Left: Bar Chart + What this means */}
+          <GridItem>
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart data={mergeTimeData} layout="vertical">
+                <XAxis
+                  type="number"
+                  stroke="#6e7681"
+                  fontSize={11}
+                  tickFormatter={(v) =>
+                    v < 24 ? `${v}h` : `${Math.round(v / 24)}d`
+                  }
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  stroke="#6e7681"
+                  fontSize={11}
+                  width={70}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "#161b22",
+                    border: "1px solid #30363d",
+                  }}
+                  formatter={(value) => {
+                    if (value === undefined) return ["N/A"];
+                    const hours = Number(value);
+                    return hours < 24
+                      ? [`${Math.round(hours)}h`, "Time"]
+                      : [`${Math.round(hours / 24)} days`, "Time"];
+                  }}
+                />
+                <Bar dataKey="hours" fill="#58a6ff" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+
+            {/* What this means - below bar chart */}
+            <Box mt={3} pt={3} borderTop="1px solid #30363d">
+              <Text color="#6e7681" fontSize="xs" mb={2}>
+                <Text as="span" fontWeight="bold" color="#a371f7">
+                  💡 What this means:
+                </Text>
+              </Text>
+              <Text color="#6e7681" fontSize="xs" lineHeight="1.5">
+                <Text as="span" fontWeight="bold" color="#c9d1d9">
+                  Median
+                </Text>{" "}
+                = typical wait. If much lower than average, some PRs drag things
+                down.
+              </Text>
+            </Box>
+          </GridItem>
+
+          {/* Right: Line Chart + Summary */}
+          <GridItem>
+            {stats.mergeTimeChart ? (
+              <MergeTimeChart
+                chart={stats.mergeTimeChart}
+                mergedCount={stats.merged}
+              />
+            ) : (
+              <VStack justify="center" h="150px" bg="#0d1117" borderRadius="md">
+                <FaClock color="#6e7681" size={16} />
+                <Text color="#6e7681" fontSize="xs">
+                  No trend data available
+                </Text>
+              </VStack>
+            )}
+          </GridItem>
+        </Grid>
       </ChartCard>
 
       {/* AI Interaction Stats */}
