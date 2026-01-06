@@ -11,6 +11,7 @@ import type {
   AIBotStats,
   GitHubPR,
   GitHubComment,
+  PRMergeTimeChart,
 } from "../../types";
 
 const CACHE_TTL_SECONDS = 2 * 60 * 60;
@@ -347,6 +348,78 @@ function calculateContributorFunnel(prs: GitHubPR[]): ContributorFunnel {
   return { firstTime, secondContribution, regular, coreTeam };
 }
 
+// Groups merged PRs by month and calculates average merge time
+
+function getMonthlyMergeTimes(prs: GitHubPR[]): PRMergeTimeChart["monthly"] {
+  const merged = prs.filter((pr) => pr.merged_at);
+  const byMonth = new Map<string, number[]>();
+  for (const pr of merged) {
+    const month = pr.merged_at!.substring(0, 7);
+    const days = getPRMergeTime(pr) / 24;
+    if (!byMonth.has(month)) {
+      byMonth.set(month, []);
+    }
+    byMonth.get(month)!.push(days);
+  }
+  return Array.from(byMonth.entries())
+    .map(([month, times]) => ({
+      month,
+      avgDays:
+        Math.round((times.reduce((a, b) => a + b, 0) / times.length) * 10) / 10,
+      count: times.length,
+    }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .slice(-6);
+}
+
+function getMergeTimeComparison(
+  prs: GitHubPR[]
+): PRMergeTimeChart["comparison"] {
+  const merged = prs.filter((pr) => pr.merged_at && pr.user?.type !== "Bot");
+  const community: number[] = [];
+  const maintainer: number[] = [];
+
+  for (const pr of merged) {
+    const days = getPRMergeTime(pr) / 24;
+    if (MAINTAINER_ROLES.includes(pr.author_association)) {
+      maintainer.push(days);
+    } else {
+      community.push(days);
+    }
+  }
+
+  // Round to 1 decimal place: multiply by 10, round, divide by 10 (3.247 -> 3.2)
+  const avg = (arr: number[]) =>
+    arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+  const communityAvg = Math.round(avg(community) * 10) / 10;
+  const maintainerAvg = Math.round(avg(maintainer) * 10) / 10;
+
+  const diffPercent =
+    maintainerAvg > 0
+      ? Math.round(((communityAvg - maintainerAvg) / maintainerAvg) * 100)
+      : 0;
+  return { communityAvg, maintainerAvg, diffPercent };
+}
+
+function getMergeTimeTrend(
+  monthly: PRMergeTimeChart["monthly"]
+): PRMergeTimeChart["trend"] {
+  if (monthly.length < 2) {
+    return {
+      direction: "flat",
+      change: 0,
+    };
+  }
+
+  const recent = monthly[monthly.length - 1].avgDays;
+  const previous = monthly[monthly.length - 2].avgDays;
+  // Calculate % change: positive = faster (improved), negative = slower (worse)
+  // Direction: >5% faster = "up", >5% slower = "down", otherwise = "flat"
+  const change = Math.round(((previous - recent) / previous) * 100);
+  const direction = change > 5 ? "up" : change < -5 ? "down" : "flat";
+  return { direction, change: Math.abs(change) };
+}
+
 type AnalyzeOptions = {
   owner: string;
   repo: string;
@@ -384,6 +457,9 @@ export async function analyze(options: AnalyzeOptions): Promise<PRStats> {
 
   const aiCommentStats = extractAICommentStats(enrichedPRs);
   const aiInteractionStats = calculateAIInteractionStats(aiCommentStats);
+  const monthly = getMonthlyMergeTimes(closedPRs);
+  const comparison = getMergeTimeComparison(closedPRs);
+  const trend = getMergeTimeTrend(monthly);
 
   const stats: PRStats = {
     total: allPRs.length,
@@ -403,6 +479,7 @@ export async function analyze(options: AnalyzeOptions): Promise<PRStats> {
     templatePath: template.templatePath,
     contributorFunnel: calculateContributorFunnel(allPRs),
     aiInteractionStats,
+    mergeTimeChart: { monthly, comparison, trend },
   };
 
   await cacheService.set(cacheKey, stats, CACHE_TTL_SECONDS);
