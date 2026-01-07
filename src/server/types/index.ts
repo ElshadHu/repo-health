@@ -38,20 +38,6 @@ export type RateLimitStatus = {
   reset: Date;
 };
 
-// OSV API raw response type  that is the expected shape
-export type OSVRawVuln = {
-  id: string;
-  summary?: string;
-  details?: string;
-  database_specific?: { severity?: string };
-  severity?: Array<{ score?: number; type?: string }>;
-  affected?: Array<{
-    ranges?: Array<{
-      events?: Array<{ fixed?: string }>;
-    }>;
-  }>;
-};
-
 // Health score types
 export type HealthScore = {
   overallScore: number;
@@ -62,50 +48,6 @@ export type HealthScore = {
     documentationScore: number;
   };
 };
-
-export type Vulnerability = {
-  id: string;
-  severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
-  summary: string;
-  fixedVersion?: string;
-};
-
-export type DependencyInfo = {
-  name: string;
-  version: string;
-  vulnerabilities: Vulnerability[];
-};
-
-export type DependenciesResult = {
-  dependencies: DependencyInfo[];
-  devDependencies: DependencyInfo[];
-  summary: {
-    total: number;
-    vulnerable: number;
-    critical: number;
-    high: number;
-    moderate: number;
-    low: number;
-  };
-};
-
-export type RelatedPRs = {
-  repo: string;
-  prNumber: number;
-  title: string;
-  url: string;
-  status: "merged" | "open" | "closed";
-  mergedAt: string;
-};
-
-export type IssueCheckResult = {
-  exists: boolean;
-  url?: string;
-  title?: string;
-  state?: "open" | "closed";
-};
-
-export type Ecosystem = "npm" | "PyPI" | "Go" | "crates.io" | "Conan" | "NuGet";
 
 // Raw GitHub PR from Octokit API  the expected shape
 export type GitHubPR = {

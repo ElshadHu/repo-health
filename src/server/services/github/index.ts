@@ -5,7 +5,6 @@ import { getRepoInfo, getLanguages } from "./repoService";
 import { getCommits, getContributors } from "./activityService";
 import { getCommunityHealth } from "./communityService";
 import { getRateLimitStatus, getFileContent } from "./fileService";
-import { searchRelatedPRs, checkIssueExists } from "./searchService";
 
 export const githubService = {
   getRepoInfo,
@@ -15,6 +14,4 @@ export const githubService = {
   getCommunityHealth,
   getRateLimitStatus,
   getFileContent,
-  searchRelatedPRs,
-  checkIssueExists,
 };
