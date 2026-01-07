@@ -22,7 +22,6 @@ import { LoadingState } from "@/components/LoadingState";
 import { RepositoryCard } from "@/components/cards/RepositoryCard";
 import { CommitListCard } from "@/components/cards/CommitListCard";
 import { ContributorCard } from "@/components/cards/ContributorCard";
-import { DependencySummaryCard } from "@/components/cards/DependencySummaryCard";
 import { PRStatsCard } from "@/components/cards/PRStatsCard";
 import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
 import { ActivityCard } from "@/components/anomaly/ActivityCard";
@@ -78,13 +77,6 @@ function HomePageContent() {
     retry: false,
     staleTime: 1000 * 60 * 5,
   });
-
-  const { data: dependencies, isLoading: isDepsLoading } =
-    trpc.dependency.analyze.useQuery(searchParams!, {
-      enabled: searchParams !== null,
-      retry: false,
-      staleTime: 1000 * 60 * 5, // 5 min client cache
-    });
 
   const { data: pitfalls, isLoading: isPitfallsLoading } =
     trpc.contributor.getPitfalls.useQuery(searchParams!, {
@@ -313,31 +305,6 @@ function HomePageContent() {
 
               {/* Main Feature Cards - Uniform Grid */}
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} gap={6}>
-                {isDepsLoading ? (
-                  <Box
-                    bg="#161b22"
-                    border="1px solid #30363d"
-                    p={6}
-                    borderRadius="lg"
-                    textAlign="center"
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    minH="200px"
-                  >
-                    <Text color="#8b949e">Scanning dependencies...</Text>
-                  </Box>
-                ) : (
-                  dependencies &&
-                  searchParams && (
-                    <DependencySummaryCard
-                      summary={dependencies.summary}
-                      owner={searchParams.owner}
-                      repo={searchParams.repo}
-                    />
-                  )
-                )}
-
                 {prStats && searchParams && (
                   <PRStatsCard
                     stats={prStats}
