@@ -59,25 +59,73 @@ export function MergeTimeChart({ chart, mergedCount }: Props) {
 
   const hasTrend = trend.direction !== "flat" && trend.change > 0;
 
-  // Line chart data
+  // Line chart data with additional metadata
   const lineData = [
     {
       id: "Merge Time",
       data: monthly.map((m) => ({
         x: formatMonth(m.month),
         y: m.avgDays * 24,
+        count: m.count, // Store count for tooltip
+        hours: m.avgDays * 24,
       })),
     },
   ];
+
+  // Custom tooltip component
+  const CustomTooltip = ({ point }: any) => {
+    const hours = point.data.hours as number;
+    const count = point.data.count as number;
+    const month = point.data.x as string;
+
+    const formatTime = (hrs: number): string => {
+      if (hrs < 1) {
+        return `${Math.round(hrs * 60)} minutes`;
+      } else if (hrs < 24) {
+        return `${hrs.toFixed(1)} hours`;
+      }
+      const days = hrs / 24;
+      return `${days.toFixed(1)} days`;
+    };
+
+    return (
+      <Box
+        bg="#161b22"
+        border="2px solid #58a6ff"
+        borderRadius="md"
+        p={3}
+        boxShadow="0 4px 12px rgba(0, 0, 0, 0.5)"
+        minW="200px"
+        maxW="240px"
+      >
+        <Text color="#8b949e" fontSize="xs" fontWeight="600" mb={2}>
+          {month}
+        </Text>
+        <VStack align="start" gap={1}>
+          <HStack>
+            <Text color="#6e7681" fontSize="xs">
+              Avg. Merge Time:
+            </Text>
+            <Text color="#c9d1d9" fontSize="sm" fontWeight="bold">
+              {formatTime(hours)}
+            </Text>
+          </HStack>
+          <Text color="#6e7681" fontSize="xs">
+            {count} PR{count !== 1 ? "s" : ""} merged
+          </Text>
+        </VStack>
+      </Box>
+    );
+  };
 
   return (
     <Box>
       {/* Line Chart */}
       {monthly.length > 1 ? (
-        <Box height="150px">
+        <Box height="150px" position="relative" overflow="visible">
           <ResponsiveLine
             data={lineData}
-            margin={{ top: 10, right: 20, bottom: 25, left: 45 }}
+            margin={{ top: 10, right: 60, bottom: 25, left: 45 }}
             xScale={{ type: "point" }}
             yScale={{ type: "linear", min: 0, max: maxHours * 1.2 }}
             curve="monotoneX"
@@ -100,10 +148,28 @@ export function MergeTimeChart({ chart, mergedCount }: Props) {
               text: { fill: "#8b949e", fontSize: 11 },
               axis: { ticks: { text: { fill: "#8b949e" } } },
               grid: { line: { stroke: "#30363d" } },
+              crosshair: {
+                line: {
+                  stroke: "#ffffff",
+                  strokeWidth: 1,
+                  strokeDasharray: "6 6",
+                },
+              },
+              tooltip: {
+                container: {
+                  background: "transparent",
+                  border: "none",
+                  boxShadow: "none",
+                },
+              },
             }}
             enableGridX={false}
             enableGridY
             gridYValues={tickValues}
+            tooltip={CustomTooltip}
+            useMesh={true}
+            motionConfig="instant"
+            animate={true}
           />
         </Box>
       ) : (
@@ -118,14 +184,14 @@ export function MergeTimeChart({ chart, mergedCount }: Props) {
       {/* Summary with trend and community comparison */}
       <VStack mt={3} align="start" gap={1} pl={10}>
         <HStack flexWrap="wrap" gap={3}>
-          <Text color="#6e7681" fontSize="xs">
+          <Text color="#6e7681" fontSize="sm">
             Calculated from {mergedCount} merged PRs.
           </Text>
 
           {hasTrend && (
             <HStack gap={1}>
               <TrendIcon color={trendColor} size={12} />
-              <Text color={trendColor} fontSize="xs" fontWeight="600">
+              <Text color={trendColor} fontSize="sm" fontWeight="600">
                 {trend.direction === "up" ? "Improved" : "Slowed"}{" "}
                 {trend.change}%
               </Text>
@@ -135,7 +201,7 @@ export function MergeTimeChart({ chart, mergedCount }: Props) {
 
         {/* Community vs Maintainer comparison */}
         {Math.abs(comparison.diffPercent) > 10 && (
-          <Text color="#6e7681" fontSize="xs">
+          <Text color="#6e7681" fontSize="sm">
             Community PRs{" "}
             <Text
               as="span"
