@@ -9,6 +9,7 @@ import { overviewRouter } from "../server/routers/overviewRouter";
 import { contributorRouter } from "../server/routers/contributorRouter";
 import { fundingRouter } from "../server/routers/fundingRouter";
 import { rateLimitRouter } from "../server/routers/rateLimitRouter";
+import { setupRouter } from "../server/routers/setupRouter";
 
 export const appRouter = router({
   repo: repoRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   contributor: contributorRouter,
   funding: fundingRouter,
   rateLimit: rateLimitRouter,
+  setup: setupRouter,
 });
 
 export type AppRouter = typeof appRouter;
