@@ -237,6 +237,9 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
             <Text fontSize="sm" color="#8b949e">
               {owner}/{repo}
             </Text>
+            <Text fontSize="xs" color="#6e7681">
+              Based on most recent {stats.total} PRs (max 200)
+            </Text>
           </VStack>
         </HStack>
         <ChakraLink
@@ -263,9 +266,9 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
       >
         <StatCard
           icon={<FaCodeBranch size={18} />}
-          label="Total PRs"
+          label="PRs Analyzed"
           value={stats.total}
-          subtext={`${stats.open} open, ${stats.merged} merged`}
+          subtext={`${stats.open} open, ${stats.merged} merged (recent sample)`}
         />
         <StatCard
           icon={<FaClock size={18} />}
