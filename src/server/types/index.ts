@@ -1,6 +1,7 @@
 export * from "./contributor";
 export * from "./funding";
 export * from "./banger";
+export * from "./setup";
 
 export type RepoInfo = {
   name: string;
