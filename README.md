@@ -7,27 +7,18 @@ A **contributor-first platform** for understanding GitHub repositories and makin
 ## Features
 
 - **Health Score (0-100)** - Activity, maintenance, community, and documentation scores
-- **Dependency Analysis** - Scan for vulnerable packages across multiple ecosystems
+- **Setup Insights** - AI-powered setup guide with time estimates, common gotchas, and best practices
 - **PR Analytics** - Merge times, author breakdown, AI reviewer detection
 - **Issue Analytics** - Crackability scores, hidden gems, hot issues for finding contribution opportunities
 - **Activity Monitor** - Anomaly detection for commit patterns using Z-score analysis
 - **Project Overview** - AI-powered codebase visualization and file-issue mapping
 - **Contributor Journey** - Visualize first-time → returning → core contributor flow
-- **Related PRs** - Find community fixes for vulnerabilities
+- **Funding Promotion** - Parse FUNDING.yml and display sponsor links
 - **GitHub OAuth** - Access private repositories
 
 ---
 
-## Supported Ecosystems
-
-| Language              | File                                 | Ecosystem | Status  |
-| --------------------- | ------------------------------------ | --------- | ------- |
-| JavaScript/TypeScript | `package.json`                       | npm       | Working |
-| Python                | `requirements.txt`, `pyproject.toml` | PyPI      | Working |
-| Go                    | `go.mod`                             | Go        | Working |
-| Rust                  | `Cargo.toml`                         | crates.io | Working |
-| C++                   | `conanfile.txt`                      | Conan     | Working |
-| C#                    | `packages.config`                    | NuGet     | Working |
+> **Note on Dependency Analysis**: I removed the dependency vulnerability scanner. It was defeating the purpose of this project - assessing "repo health" through dependencies felt redundant when tools like Dependabot and Snyk already do this well. Instead, I am now focusing on **Setup Insights** - helping contributors understand how to set up a repo locally, which is a much bigger pain point.
 
 ---
 
@@ -53,7 +44,7 @@ src/
 │   ├── cards/                # Stat cards
 │   ├── prs/                  # PR analytics UI
 │   ├── issues/               # Issue analytics UI
-│   ├── dependencies/         # Vulnerability UI
+│   ├── setup/                # Setup Insights UI
 │   ├── anomaly/              # Activity monitor UI
 │   └── overview/             # Architecture diagram
 ├── server/
@@ -63,6 +54,7 @@ src/
 │   │   ├── deps/             # Dependency analysis
 │   │   ├── commits/          # Banger commits scoring & explanations
 │   │   ├── funding/          # FUNDING.yml parsing
+│   │   ├── setup/            # Setup Insights (AI-powered)
 │   │   ├── contributor/      # Contributor analysis
 │   │   ├── prs/              # PR analysis
 │   │   ├── issues/           # Issue analysis
@@ -112,9 +104,6 @@ Analyze pull request patterns and community contributor behavior.
 - [x] GitHub API integration with caching
 - [x] Health Score algorithm
 - [x] GitHub OAuth for private repos
-- [x] Dependency vulnerability scanning (6 languages) _(content may evolve to better align with project goals)_
-- [x] Related PRs search
-- [x] Issue existence check
 - [x] PR Analytics - Merge times, author breakdown, AI detection
 - [x] Merge Time Chart - Monthly trend visualization with community vs maintainer comparison
 - [x] Contributor Journey - Sankey diagram visualization
@@ -125,12 +114,13 @@ Analyze pull request patterns and community contributor behavior.
 - [x] Project Overview - D3 architecture diagram with AI-powered file-issue mapping
 - [x] Contribution Insights - Spam detection and AI-powered rejection analysis
 - [x] Funding Promotion - Parse FUNDING.yml and display sponsor links
-- [x] Banger Commits - Highlight significant commits with scoring (template-first, AI fallback) - Could be improved
-- [x] UNGH Integration - Rate-limit-free GitHub proxy for public repositories (repo info, contributors, file tree)
+- [x] Banger Commits - Highlight significant commits with scoring
+- [x] UNGH Integration - Rate-limit-free GitHub proxy for public repos
+- [x] Setup Insights - AI-powered setup guide with time estimates and best practices
 
 ### In Progress
 
-- [ ] UI polish and responsive design (50% - getting there)
+- [ ] UI polish and responsive design (60% - getting there)
 - [ ] Better error handling
 - [ ] Comprehensive test suite
 
@@ -141,7 +131,6 @@ Analyze pull request patterns and community contributor behavior.
 | Feature Request Validation  | Help maintainers identify feature requests outside project scope            |
 | Banger Commits Enhancements | Add commit size scoring (lines changed), author context, configurable count |
 | Project Lifecycle Status    | Display Active, Maintenance Mode, Archived, Company-backed, Solo Developer  |
-| Common Setup Mistakes       | Extract patterns from CONTRIBUTING.md and failed CI builds                  |
 | Experience Level Filter     | Dropdown: First Contributor, Beginner, Expert at Stack, I am Cooked         |
 
 These are my current ideas. Have a feature request or new idea? Use GitHub Discussions or open an issue.
