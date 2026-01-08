@@ -27,6 +27,7 @@ import { IssueStatsCard } from "@/components/cards/IssueStatsCard";
 import { ActivityCard } from "@/components/anomaly/ActivityCard";
 import { ProjectOverviewSection } from "@/components/overview";
 import { PitfallsSummaryCard } from "@/components/contributor/PitfallsSummaryCard";
+import { SetupSummaryCard } from "@/components/setup/SetupSummaryCard";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const toaster = createToaster({
@@ -321,6 +322,12 @@ function HomePageContent() {
                 )}
                 {searchParams && (
                   <ActivityCard
+                    owner={searchParams.owner}
+                    repo={searchParams.repo}
+                  />
+                )}
+                {searchParams && (
+                  <SetupSummaryCard
                     owner={searchParams.owner}
                     repo={searchParams.repo}
                   />
