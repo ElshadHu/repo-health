@@ -47,6 +47,42 @@ const COLORS = {
   community: "#238636",
   bots: "#a371f7",
 };
+
+// Custom tooltip for pie charts
+function PieTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; payload: { color: string } }>;
+}) {
+  if (!active || !payload || !payload[0]) return null;
+
+  const data = payload[0];
+  const bgColor = data.payload.color || "#161b22";
+
+  const hex = bgColor.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  const textColor = brightness < 128 ? "#ffffff" : "#000000";
+
+  return (
+    <Box
+      bg={bgColor}
+      border="1px solid #30363d"
+      borderRadius="md"
+      p={2}
+      boxShadow="0 2px 8px rgba(0, 0, 0, 0.3)"
+    >
+      <Text color={textColor} fontSize="sm" fontWeight="600">
+        {data.name}: {data.value}
+      </Text>
+    </Box>
+  );
+}
+
 function StatCard({
   icon,
   label,
@@ -274,13 +310,7 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
                   <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "#161b22",
-                  border: "1px solid #30363d",
-                }}
-                labelStyle={{ color: "#c9d1d9" }}
-              />
+              <Tooltip content={<PieTooltip />} />
             </PieChart>
           </ResponsiveContainer>
           <ChartLegend items={statusData} />
@@ -299,12 +329,7 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
                   <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "#161b22",
-                  border: "1px solid #30363d",
-                }}
-              />
+              <Tooltip content={<PieTooltip />} />
             </PieChart>
           </ResponsiveContainer>
           <ChartLegend items={authorData} />
