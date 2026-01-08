@@ -317,8 +317,7 @@ function calculateConversationStatsEnriched(
     (sum, item) => sum + item.issueComments.length + item.reviewComments.length,
     0
   );
-  const avgComments =
-    totalPRCount > 0 ? Math.round(totalComments / totalPRCount) : 0;
+  const avgComments = totalPRCount > 0 ? totalComments / totalPRCount : 0;
   return { avgComments, totalComments };
 }
 

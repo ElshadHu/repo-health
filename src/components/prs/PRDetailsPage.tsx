@@ -240,7 +240,7 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
         <StatCard
           icon={<FaComments size={18} />}
           label="Avg Comments/PR"
-          value={stats.conversationStats.avgComments}
+          value={stats.conversationStats.avgComments.toFixed(2)}
           subtext={`${stats.conversationStats.totalComments} total comments`}
         />
         <StatCard
