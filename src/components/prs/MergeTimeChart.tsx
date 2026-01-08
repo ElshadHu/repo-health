@@ -73,10 +73,14 @@ export function MergeTimeChart({ chart, mergedCount }: Props) {
   ];
 
   // Custom tooltip component
-  const CustomTooltip = ({ point }: any) => {
-    const hours = point.data.hours as number;
-    const count = point.data.count as number;
-    const month = point.data.x as string;
+  const CustomTooltip = ({
+    point,
+  }: {
+    point: { data: { hours: number; count: number; x: string } };
+  }) => {
+    const hours = point.data.hours;
+    const count = point.data.count;
+    const month = point.data.x;
 
     const formatTime = (hrs: number): string => {
       if (hrs < 1) {
