@@ -59,7 +59,13 @@ export function RepositoryCard({
 
       {/* Stats Row with Sponsor Button */}
       {stats && (
-        <Flex gap={3} mb={4} align="center" wrap="wrap">
+        <Flex
+          gap={3}
+          mb={4}
+          align={{ base: "stretch", lg: "center" }}
+          direction={{ base: "column", lg: "row" }}
+          wrap="wrap"
+        >
           <SimpleGrid columns={{ base: 2, md: 4 }} gap={3} flex="1">
             <HStack
               bg="#0d1117"
