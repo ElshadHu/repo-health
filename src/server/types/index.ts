@@ -2,6 +2,7 @@ export * from "./contributor";
 export * from "./funding";
 export * from "./banger";
 export * from "./setup";
+export * from "./prTypes";
 
 export type RepoInfo = {
   name: string;
@@ -48,95 +49,6 @@ export type HealthScore = {
     communityScore: number;
     documentationScore: number;
   };
-};
-
-// Raw GitHub PR from Octokit API  the expected shape
-export type GitHubPR = {
-  number: number;
-  title: string;
-  html_url: string;
-  created_at: string;
-  merged_at?: string | null;
-  author_association: string;
-  comments?: number;
-  review_comments?: number;
-  user?: { login: string; type?: string } | null;
-  requested_reviewers?: Array<{ login: string }> | null;
-};
-
-export type GitHubComment = {
-  user?: { login: string } | null;
-};
-
-export type HotPR = {
-  id: number;
-  title: string;
-  url: string;
-  author: string;
-  comments: number;
-  reviewComments: number;
-  reviewers: number;
-  createdAt: string;
-};
-
-export type AuthorBreakdown = {
-  maintainer: number;
-  community: number;
-  bots: number;
-};
-
-export type ConversationStats = {
-  avgComments: number;
-  totalComments: number;
-};
-
-export type PRStats = {
-  total: number;
-  open: number;
-  closed: number;
-  merged: number;
-  avgMergeTimeHours: number;
-  medianMergeTimeHours: number;
-  authorBreakdown: AuthorBreakdown;
-  conversationStats: ConversationStats;
-  aiReviewers: string[];
-  hasTemplate: boolean;
-  templatePath: string | null;
-  hotPRs: HotPR[];
-  contributorFunnel?: ContributorFunnel;
-  aiInteractionStats?: AIInteractionStats;
-  mergeTimeChart?: PRMergeTimeChart;
-};
-
-export type PRMergeTimeChart = {
-  monthly: { month: string; avgDays: number; count: number }[];
-  comparison: {
-    communityAvg: number;
-    maintainerAvg: number;
-    diffPercent: number;
-  };
-  trend: { direction: "up" | "down" | "flat"; change: number };
-};
-
-export type ContributorFunnel = {
-  firstTime: number; // Contributors with 1 PR
-  secondContribution: number; // Contributors with 2 PRs
-  regular: number; // Contributors with 3-9 PRs
-  coreTeam: number; // Contributors with 10+ PRs or maintainer status
-};
-
-// AI Bot Interaction Analytics
-export type AIBotStats = {
-  name: string;
-  commentCount: number;
-  prsReviewedCount: number;
-};
-
-export type AIInteractionStats = {
-  totalAIComments: number;
-  avgWrestlingTimeHours: number; // Time from AI comment to next human commit
-  prsWithAIReviews: number;
-  bots: AIBotStats[];
 };
 
 // Issue Analysis Types
