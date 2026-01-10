@@ -10,8 +10,10 @@ import {
 } from "@chakra-ui/react";
 import { FaWrench } from "react-icons/fa";
 import { trpc } from "@/trpc/client";
-import { IssueCard } from "./IssueCard";
-import { TimeBreakDown } from "./TimeBreakDown";
+import { SetupStats } from "./SetupStats";
+import { QuickStartCommand } from "./QuickStartCommand";
+import { SetupChecklist } from "./SetupChecklist";
+import { CommonGotchas } from "./CommonGotchas";
 import { DosDonts } from "./DosDonts";
 
 export function SetupInsightsPanel({
@@ -43,7 +45,9 @@ export function SetupInsightsPanel({
     );
   }
 
-  if (error || !data) return null;
+  if (error || !data) {
+    return null;
+  }
 
   // Count env vars from issues
   const envIssue = data.criticalIssues.find((i) => i.id === "env-vars");
@@ -52,7 +56,7 @@ export function SetupInsightsPanel({
     : 0;
 
   return (
-    <VStack align="stretch" gap={6}>
+    <VStack align="stretch" gap={4}>
       {/* Header */}
       <HStack justify="space-between">
         <HStack gap={2}>
@@ -62,109 +66,41 @@ export function SetupInsightsPanel({
           </Text>
         </HStack>
         {data.dataSource.type === "ci-analyzed" && (
-          <Badge colorPalette="blue">
+          <Badge
+            bg="#58a6ff11"
+            color="#58a6ff"
+            p={2}
+            border="1px solid #58a6ff"
+          >
             Based on {data.dataSource.ciRunsAnalyzed} CI failures
           </Badge>
         )}
       </HStack>
 
-      {/* Hero Stats */}
-      <SimpleGrid columns={3} gap={4}>
-        <Box
-          bg="#161b22"
-          border="1px solid #30363d"
-          borderRadius="lg"
-          p={4}
-          textAlign="center"
-        >
-          <Text color="#f0f6fc" fontSize="2xl" fontWeight="bold">
-            ~{data.timeEstimate.totalMinutes}
-          </Text>
-          <Text color="#8b949e" fontSize="sm">
-            Minutes to Setup
-          </Text>
-          <Text color="#58a6ff" fontSize="xs" mt={1}>
-            {data.timeEstimate.accuracy === "calculated"
-              ? "Based on CI data"
-              : "Estimated"}
-          </Text>
-        </Box>
-        <Box
-          bg="#161b22"
-          border="1px solid #30363d"
-          borderRadius="lg"
-          p={4}
-          textAlign="center"
-        >
-          <Text color="#f0f6fc" fontSize="2xl" fontWeight="bold">
-            {data.criticalIssues.length}
-          </Text>
-          <Text color="#8b949e" fontSize="sm">
-            Setup Notes
-          </Text>
-          {data.criticalIssues[0] && (
-            <Text
-              color="#f0883e"
-              fontSize="xs"
-              mt={1}
-              overflow="hidden"
-              textOverflow="ellipsis"
-              whiteSpace="nowrap"
-            >
-              {data.criticalIssues[0].title}
-            </Text>
-          )}
-        </Box>
-        <Box
-          bg="#161b22"
-          border="1px solid #30363d"
-          borderRadius="lg"
-          p={4}
-          textAlign="center"
-        >
-          <Text color="#f0f6fc" fontSize="2xl" fontWeight="bold">
-            {envVarCount}
-          </Text>
-          <Text color="#8b949e" fontSize="sm">
-            Env Variables
-          </Text>
-          {envVarCount > 0 ? (
-            <Text color="#a371f7" fontSize="xs" mt={1}>
-              Copy .env.example
-            </Text>
-          ) : (
-            <Text color="#3fb950" fontSize="xs" mt={1}>
-              No setup needed
-            </Text>
-          )}
-        </Box>
+      {/* Quick Start & Checklist Row */}
+      <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
+        <SetupStats
+          issueCount={data.criticalIssues.length}
+          envVarCount={envVarCount}
+          firstIssueTitle={data.criticalIssues[0]?.title}
+        />
+        {data.quickStart && (
+          <QuickStartCommand command={data.quickStart.command} />
+        )}
+        {data.setupSteps && data.setupSteps.length > 0 && (
+          <SetupChecklist steps={data.setupSteps} />
+        )}
+        <CommonGotchas issues={data.criticalIssues} />
       </SimpleGrid>
 
-      {/* Time Breakdown */}
-      <TimeBreakDown data={data.timeEstimate} />
-
-      {/* Issues */}
-      {data.criticalIssues.length > 0 && (
-        <>
-          <Text color="#f0f6fc" fontWeight="600" fontSize="lg">
-            Common Gotchas
-          </Text>
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={4}>
-            {data.criticalIssues.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} />
-            ))}
-          </SimpleGrid>
-        </>
-      )}
-
-      {/* Dos and Donts */}
+      {/* Best Practices */}
       {(data.dosDonts.dos.length > 0 || data.dosDonts.donts.length > 0) && (
-        <>
-          <Text color="#f0f6fc" fontWeight="600" fontSize="lg">
+        <Box>
+          <Text color="#f0f6fc" fontWeight="600" fontSize="md" mb={3}>
             Best Practices
           </Text>
           <DosDonts data={data.dosDonts} />
-        </>
+        </Box>
       )}
     </VStack>
   );

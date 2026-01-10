@@ -20,6 +20,20 @@ export function SetupSummaryCard({
 
   const topIssue = data.criticalIssues[0];
 
+  // Calculate complexity
+  const envIssue = data.criticalIssues.find((i) => i.id === "env-vars");
+  const envVarCount = envIssue
+    ? parseInt(envIssue.title.match(/\d+/)?.[0] || "0")
+    : 0;
+  const score = data.criticalIssues.length * 2 + envVarCount;
+  const complexity = score <= 3 ? "Easy" : score <= 7 ? "Moderate" : "Advanced";
+  const complexityColor =
+    complexity === "Easy"
+      ? "#3fb950"
+      : complexity === "Moderate"
+        ? "#f0883e"
+        : "#f85149";
+
   return (
     <Link href={`/setup/${owner}/${repo}`} style={{ textDecoration: "none" }}>
       <Box
@@ -39,18 +53,17 @@ export function SetupSummaryCard({
                 Setup Guide
               </Text>
             </HStack>
-            <FaArrowRight color="#8b949e" />
-          </HStack>
-
-          <HStack gap={2}>
-            <Text color="#8b949e" fontSize="sm">
-              ~{data.timeEstimate.totalMinutes} min
-            </Text>
-            {data.dataSource.type === "ci-analyzed" && (
-              <Badge colorPalette="blue" size="sm">
-                Based on CI data
+            <HStack gap={2}>
+              <Badge
+                bg={`${complexityColor}33`}
+                color={complexityColor}
+                size="sm"
+                border={`1px solid ${complexityColor}`}
+              >
+                {complexity}
               </Badge>
-            )}
+              <FaArrowRight color="#8b949e" />
+            </HStack>
           </HStack>
 
           {topIssue && (

@@ -19,15 +19,15 @@ export function IssueCard({ issue }: { issue: CriticalIssue }) {
     <Box
       bg="#161b22"
       border="1px solid #30363d"
-      borderLeft={`4px solid ${c.border}`}
+      borderLeft={`3px solid ${c.border}`}
       borderRadius="lg"
-      p={5}
+      p={4}
     >
-      <VStack align="stretch" gap={3}>
-        <Text color="#f0f6fc" fontWeight="600">
+      <VStack align="stretch" gap={2}>
+        <Text color="#f0f6fc" fontWeight="600" fontSize="sm">
           {issue.title}
         </Text>
-        <Text color="#8b949e" fontSize="13px">
+        <Text color="#8b949e" fontSize="xs">
           {issue.description}
         </Text>
         {issue.solution.command && (
@@ -35,14 +35,14 @@ export function IssueCard({ issue }: { issue: CriticalIssue }) {
             bg="#0d1117"
             border="1px solid #30363d"
             borderRadius="md"
-            p={3}
+            p={2}
             justify="space-between"
           >
-            <Text fontFamily="mono" fontSize="13px" color="#79c0ff">
+            <Text fontFamily="mono" fontSize="xs" color="#79c0ff">
               {issue.solution.command}
             </Text>
             <Button size="sm" variant="ghost" onClick={copy}>
-              <FaCopy />
+              <FaCopy size={12} />
             </Button>
           </HStack>
         )}
