@@ -16,15 +16,23 @@ export async function analyzeConflictReasons(
       output: Output.object({
         schema: conflictReasonSchema,
       }),
-      prompt: `Analyze why these open PRs may have merge conflicts. Consider:
-- Long wait times while other PRs got merged
-- Possible scope creep from review comments
-- Delays in maintainer response
+      prompt: `You are analyzing open PRs that may face merge conflicts because other PRs were merged while these waited.
+
+For each PR, explain the likely conflict risk based on:
+- How long it's been waiting (daysSinceCreated)
+- How many PRs were merged after it was opened (prsMergedAfter)
+- The PR title/scope
+
+Generate a specific, actionable reason (30-50 words) that explains:
+1. WHY this PR is at risk (e.g., "Extensive UI changes may conflict with 8 recently merged frontend PRs")
+2. WHAT might have changed (based on merged PRs count and wait time)
+
+Be specific. Avoid generic phrases like "possible scope change" or "potential delays".
 
 PRs to analyze:
 ${JSON.stringify(prs, null, 2)}
 
-For each PR, provide a brief reason (max 20 words) and category.`,
+Provide a clear, specific reason and category for each PR.`,
     });
 
     // Convert to Map for easy lookup
