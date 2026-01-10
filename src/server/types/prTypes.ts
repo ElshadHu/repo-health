@@ -80,6 +80,7 @@ export type ConflictRiskPR = {
   daysSinceCreated: number;
   prsMergedAfter: number; // PRs merged since this one was opened
   riskScore: number; // Calculated risk indicator
+  reason?: string; // Reason for the risk
 };
 
 export type MergeConflictFairness = {
