@@ -1,6 +1,6 @@
 // Calculate merge conflict risk for open community PRs
 // This module analyzes PRs that may have developed conflicts due to other PRs being merged first
-
+import { analyzeConflictReasons } from "../insights/analyzeConflictReasons";
 import type {
   GitHubPR,
   MergeConflictFairness,
@@ -11,10 +11,10 @@ const MAINTAINER_ROLES = ["OWNER", "MEMBER", "COLLABORATOR"];
 
 // Calculate merge conflict risk for open community PRs
 // Risk = (days waiting) × (PRs merged after this one) / 10
-export function calculateConflictRisk(
+export async function calculateConflictRisk(
   openPRs: GitHubPR[],
   mergedPRs: GitHubPR[]
-): MergeConflictFairness {
+): Promise<MergeConflictFairness> {
   const now = Date.now();
   const riskPRs: ConflictRiskPR[] = [];
 
@@ -64,6 +64,11 @@ export function calculateConflictRisk(
             atRiskPRs.length
         )
       : 0;
+
+  const reasonMap = await analyzeConflictReasons(atRiskPRs);
+  for (const pr of atRiskPRs) {
+    pr.reason = reasonMap.get(pr.number);
+  }
 
   return { atRiskPRs, avgWaitDays };
 }
