@@ -25,8 +25,13 @@ A **contributor-first platform** for understanding GitHub repositories and makin
 ## Tech Stack
 
 **Frontend**: Next.js 16, React 19, Chakra UI  
-**Backend**: tRPC, Octokit, UNGH (rate-limit-free GitHub proxy), Zod  
+**Backend**: tRPC, Octokit, UNGH (rate limit free GitHub proxy), Zod  
+**AI**: Vercel AI SDK (`ai` package) with OpenAI provider  
 **Data**: MySQL (Prisma), Redis, OSV API
+
+### Why Vercel AI SDK?
+
+I chose it because it has built in Zod schema support for structured outputs. No manual JSON parsing needed.
 
 ---
 
@@ -60,6 +65,7 @@ src/
 │   │   ├── issues/           # Issue analysis
 │   │   ├── anomaly/          # Activity anomaly detection
 │   │   ├── overview/         # AI-powered file-issue mapping
+│   │   ├── insights/         # AI conflict analysis with Vercel AI SDK
 │   │   ├── user/             # User/auth services
 │   │   └── tests/            # Unit tests
 │   └── types/                # TypeScript types
