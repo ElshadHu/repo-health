@@ -31,6 +31,10 @@ export type SetupInsights = {
     type: "estimated" | "ci-analyzed";
     ciRunsAnalyzed: number;
   };
+  quickStart?: {
+    command: string;
+  };
+  setupSteps?: string[];
 };
 
 export type Ecosystem =

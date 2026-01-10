@@ -2,9 +2,21 @@
 
 import { fetchSetupFiles } from "./setupFiles";
 import { parseContributing, parseEnvExample } from "./parsers";
-import { analyzeNode } from "./nodeAnalyzer";
-import { analyzePython } from "./pythonAnalyzer";
-import { analyzeDocker } from "./dockerAnalyzer";
+import {
+  analyzeNode,
+  getNodeQuickStartCommands,
+  getNodeSetupSteps,
+} from "./nodeAnalyzer";
+import {
+  analyzePython,
+  getPythonQuickStartCommands,
+  getPythonSetupSteps,
+} from "./pythonAnalyzer";
+import {
+  analyzeDocker,
+  getDockerQuickStartCommands,
+  getDockerSetupSteps,
+} from "./dockerAnalyzer";
 import { analyzeCIFailures } from "./ciAnalyzer";
 import { analyzeSetupWithAI } from "./aiAnalyzer";
 import type { SetupInsights, CriticalIssue } from "../../types/setup";
@@ -75,6 +87,12 @@ export async function analyzeSetup(
 
   const adjustedTime = baseTime + aiResult.timeAdjustment;
 
+  // Generate Quick Start command
+  const quickStart = generateQuickStartCommand(files);
+
+  // Generate Setup Steps
+  const setupSteps = generateSetupSteps(files, envVars.length > 0);
+
   return {
     timeEstimate: {
       totalMinutes: adjustedTime,
@@ -93,7 +111,77 @@ export async function analyzeSetup(
       type: hasCIData ? "ci-analyzed" : "estimated",
       ciRunsAnalyzed: ciData,
     },
+    quickStart,
+    setupSteps,
   };
+}
+
+function generateQuickStartCommand(
+  files: Awaited<ReturnType<typeof fetchSetupFiles>>
+): { command: string } | undefined {
+  const commands: string[] = [];
+
+  // Add Docker commands first (if applicable)
+  commands.push(...getDockerQuickStartCommands(files));
+
+  // Add ecosystem-specific commands
+  switch (files.ecosystem) {
+    case "node":
+      commands.push(...getNodeQuickStartCommands(files));
+      break;
+    case "python":
+      commands.push(...getPythonQuickStartCommands(files));
+      break;
+  }
+
+  return commands.length > 0 ? { command: commands.join(" && ") } : undefined;
+}
+
+function generateSetupSteps(
+  files: Awaited<ReturnType<typeof fetchSetupFiles>>,
+  hasEnvVars: boolean
+): string[] {
+  const steps: string[] = [];
+
+  // Get ecosystem-specific steps
+  let ecosystemSteps: string[] = [];
+  switch (files.ecosystem) {
+    case "node":
+      ecosystemSteps = getNodeSetupSteps(files);
+      break;
+    case "python":
+      ecosystemSteps = getPythonSetupSteps(files);
+      break;
+  }
+
+  // Separate prerequisites from other steps
+  const prerequisites = ecosystemSteps.filter(
+    (s) =>
+      s.includes("Install Node.js") ||
+      (s.includes("Python") && s.includes("required"))
+  );
+  const postCloneSteps = ecosystemSteps.filter(
+    (s) => !prerequisites.includes(s)
+  );
+
+  // Add prerequisites first
+  steps.push(...prerequisites);
+
+  // Clone repository
+  steps.push("Clone the repository");
+
+  // Environment variables
+  if (hasEnvVars) {
+    steps.push("Copy .env.example to .env and configure variables");
+  }
+
+  // Docker services
+  steps.push(...getDockerSetupSteps(files));
+
+  // Ecosystem-specific post-clone steps
+  steps.push(...postCloneSteps);
+
+  return steps;
 }
 
 export const setupService = { analyzeSetup };

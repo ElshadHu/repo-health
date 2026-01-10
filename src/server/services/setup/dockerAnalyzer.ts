@@ -101,3 +101,30 @@ export function analyzeDocker(files: SetupFilesResult): CriticalIssue[] {
 
   return issues;
 }
+
+export function getDockerQuickStartCommands(files: SetupFilesResult): string[] {
+  const commands: string[] = [];
+
+  if (files.dockerCompose) {
+    commands.push("docker-compose up -d");
+  }
+
+  return commands;
+}
+
+export function getDockerSetupSteps(files: SetupFilesResult): string[] {
+  const steps: string[] = [];
+  const issues = analyzeDocker(files);
+
+  // Docker services
+  const dockerCritical = issues.find((i) => i.severity === "critical");
+  const dockerDb = issues.find((i) => i.id === "docker-db");
+
+  if (dockerCritical) {
+    steps.push(`Start Docker services (${dockerCritical.description})`);
+  } else if (dockerDb) {
+    steps.push("Start database services with Docker");
+  }
+
+  return steps;
+}
