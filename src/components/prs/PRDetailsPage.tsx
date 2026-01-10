@@ -38,6 +38,7 @@ import type { PRStats } from "@/server/types";
 import { ContributorSankey } from "./ContributorSankey";
 import { AIInteractionCard } from "./AIInteractionCard";
 import { MergeTimeChart } from "./MergeTimeChart";
+import { MergeConflictRiskCard } from "./MergeConflictRiskCard";
 
 const COLORS = {
   merged: "#238636",
@@ -418,6 +419,13 @@ export function PRDetailsPage({ stats, owner, repo }: Props) {
       {stats.aiInteractionStats && (
         <Box mt={6}>
           <AIInteractionCard stats={stats.aiInteractionStats} />
+        </Box>
+      )}
+
+      {/* Merge Conflict Risk */}
+      {stats.mergeConflictFairness && (
+        <Box mt={6}>
+          <MergeConflictRiskCard stats={stats.mergeConflictFairness} />
         </Box>
       )}
 
