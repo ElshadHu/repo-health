@@ -13,6 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.7",
     "@auth/prisma-adapter": "^2.11.1",
     "@chakra-ui/charts": "^3.30.0",
     "@chakra-ui/next-js": "^2.4.2",
@@ -30,6 +31,7 @@
     "@trpc/react-query": "^11.8.0",
     "@trpc/server": "^11.8.0",
     "@types/d3": "^7.4.3",
+    "ai": "^6.0.26",
     "d3": "^7.9.0",
     "framer-motion": "^12.23.26",
     "fuse.js": "^7.1.0",
