@@ -480,7 +480,7 @@ export async function analyze(options: AnalyzeOptions): Promise<PRStats> {
     contributorFunnel: calculateContributorFunnel(allPRs),
     aiInteractionStats,
     mergeTimeChart: { monthly, comparison, trend },
-    mergeConflictFairness: calculateConflictRisk(openPRs, mergedPRs),
+    mergeConflictFairness: await calculateConflictRisk(openPRs, mergedPRs),
   };
 
   await cacheService.set(cacheKey, stats, CACHE_TTL_SECONDS);
