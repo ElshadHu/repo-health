@@ -1,14 +1,3 @@
-export type SetupTimeEstimate = {
-  totalMinutes: number;
-  breakdown: {
-    install: number;
-    configuration: number;
-    troubleshooting: number;
-    platformSpecific: number;
-  };
-  accuracy: "estimated" | "calculated";
-};
-
 export type CriticalIssue = {
   id: string;
   type: "dependency" | "environment" | "configuration" | "platform";
@@ -21,7 +10,6 @@ export type CriticalIssue = {
 };
 
 export type SetupInsights = {
-  timeEstimate: SetupTimeEstimate;
   criticalIssues: CriticalIssue[];
   dosDonts: {
     dos: { text: string }[];

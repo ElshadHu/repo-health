@@ -28,8 +28,7 @@ export async function analyzeSetupWithAI(
   owner: string,
   repo: string,
   files: SetupFilesResult,
-  issues: CriticalIssue[],
-  baseTimeMinutes: number
+  issues: CriticalIssue[]
 ): Promise<AISetupResult> {
   const cacheKey = ["setup-ai", owner, repo].join(":");
 
@@ -38,7 +37,7 @@ export async function analyzeSetupWithAI(
     if (cached) return JSON.parse(cached) as AISetupResult;
   }
 
-  const context = buildContext(files, issues, baseTimeMinutes);
+  const context = buildContext(files, issues);
   const prompt = buildPrompt(context);
 
   try {
@@ -50,12 +49,6 @@ export async function analyzeSetupWithAI(
 
     const content = response.choices[0].message.content || "{}";
     const result = JSON.parse(content) as AISetupResult;
-
-    // Clamp time adjustment to reasonable bounds
-    result.timeAdjustment = Math.max(
-      -15,
-      Math.min(30, result.timeAdjustment || 0)
-    );
 
     if (redis) {
       await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL);
@@ -74,13 +67,11 @@ export async function analyzeSetupWithAI(
 
 function buildContext(
   files: SetupFilesResult,
-  issues: CriticalIssue[],
-  baseTime: number
+  issues: CriticalIssue[]
 ): string[] {
   const lines: string[] = [];
 
   lines.push("ECOSYSTEM: " + files.ecosystem);
-  lines.push("BASE_TIME: " + baseTime + " minutes");
   lines.push("ISSUES_COUNT: " + issues.length);
 
   if (files.contributing) {
@@ -120,9 +111,7 @@ function buildPrompt(context: string[]): string {
     "Return JSON:",
     "{",
     '  "dos": ["3-5 specific dos for contributors based on CONTRIBUTING.md"],',
-    '  "donts": ["3-5 specific donts based on common mistakes for this stack"],',
-    '  "timeAdjustment": number (-15 to +30 minutes adjustment to base time),',
-    '  "timeReason": "brief reason for adjustment"',
+    '  "donts": ["3-5 specific donts based on common mistakes for this stack"]',
     "}",
     "",
     "Keep tips short and actionable. Base them on actual project context, not generic advice.",

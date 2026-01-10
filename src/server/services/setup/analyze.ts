@@ -59,16 +59,9 @@ export async function analyzeSetup(
   }
 
   const hasCIData = ciData > 0;
-  const baseTime = 20 + criticalIssues.length * 5;
 
-  // AI analysis for smart Dos/Don'ts and time adjustment
-  const aiResult = await analyzeSetupWithAI(
-    owner,
-    repo,
-    files,
-    criticalIssues,
-    baseTime
-  );
+  // AI analysis for smart Dos/Don'ts
+  const aiResult = await analyzeSetupWithAI(owner, repo, files, criticalIssues);
 
   // Build dos from AI or fallback to parsed prerequisites
   const dos =
@@ -85,8 +78,6 @@ export async function analyzeSetup(
           { text: "Don't mix package managers" },
         ];
 
-  const adjustedTime = baseTime + aiResult.timeAdjustment;
-
   // Generate Quick Start command
   const quickStart = generateQuickStartCommand(files);
 
@@ -94,17 +85,6 @@ export async function analyzeSetup(
   const setupSteps = generateSetupSteps(files, envVars.length > 0);
 
   return {
-    timeEstimate: {
-      totalMinutes: adjustedTime,
-      breakdown: {
-        install: 10,
-        configuration: 5 + envVars.length,
-        troubleshooting:
-          criticalIssues.filter((i) => i.severity === "critical").length * 5,
-        platformSpecific: 3 + Math.max(0, aiResult.timeAdjustment),
-      },
-      accuracy: hasCIData ? "calculated" : "estimated",
-    },
     criticalIssues,
     dosDonts: { dos, donts },
     dataSource: {
