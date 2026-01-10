@@ -13,6 +13,7 @@ import type {
   GitHubComment,
   PRMergeTimeChart,
 } from "../../types";
+import { calculateConflictRisk } from "./conflictRisk";
 
 const CACHE_TTL_SECONDS = 2 * 60 * 60;
 
@@ -479,6 +480,7 @@ export async function analyze(options: AnalyzeOptions): Promise<PRStats> {
     contributorFunnel: calculateContributorFunnel(allPRs),
     aiInteractionStats,
     mergeTimeChart: { monthly, comparison, trend },
+    mergeConflictFairness: calculateConflictRisk(openPRs, mergedPRs),
   };
 
   await cacheService.set(cacheKey, stats, CACHE_TTL_SECONDS);
