@@ -1,5 +1,5 @@
 "use client";
-import { Box, VStack, HStack, Text, Badge } from "@chakra-ui/react";
+import { Box, VStack, HStack, Text, Badge, Spinner } from "@chakra-ui/react";
 import { FaWrench, FaArrowRight } from "react-icons/fa";
 import Link from "next/link";
 import { trpc } from "@/trpc/client";
@@ -16,7 +16,24 @@ export function SetupSummaryCard({
     { enabled: !!owner && !!repo, retry: false, staleTime: 300000 }
   );
 
-  if (isLoading || error || !data) return null;
+  if (isLoading) {
+    return (
+      <Box
+        bg="#161b22"
+        border="1px solid #30363d"
+        p={6}
+        borderRadius="lg"
+        minH="200px"
+        h="200px"
+      >
+        <VStack gap={4} justify="center" h="100%">
+          <Spinner size="lg" color="#f0883e" />
+          <Text color="#8b949e">Analyzing setup requirements...</Text>
+        </VStack>
+      </Box>
+    );
+  }
+  if (error || !data) return null;
 
   const topIssue = data.criticalIssues[0];
 
@@ -41,9 +58,15 @@ export function SetupSummaryCard({
         border="1px solid #30363d"
         borderRadius="lg"
         p={5}
+        h="200px"
         cursor="pointer"
-        _hover={{ borderColor: "#58a6ff" }}
-        h="100%"
+        transition="all 0.3s ease"
+        _hover={{
+          borderColor: "#58a6ff",
+          transform: "translateY(-2px)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+        }}
+        role="group"
       >
         <VStack align="stretch" gap={3}>
           <HStack justify="space-between">
@@ -62,7 +85,13 @@ export function SetupSummaryCard({
               >
                 {complexity}
               </Badge>
-              <FaArrowRight color="#8b949e" />
+              <Box
+                color="#8b949e"
+                transition="all 0.2s ease"
+                _groupHover={{ transform: "translateX(4px)", color: "#c9d1d9" }}
+              >
+                <FaArrowRight />
+              </Box>
             </HStack>
           </HStack>
 

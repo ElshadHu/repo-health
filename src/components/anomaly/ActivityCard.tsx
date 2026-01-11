@@ -17,8 +17,13 @@ export function ActivityCard({ owner, repo }: Props) {
         minH="200px"
         h="200px"
         cursor="pointer"
-        _hover={{ borderColor: "#58a6ff", transform: "translateY(-2px)" }}
-        transition="all 0.2s"
+        transition="all 0.3s ease"
+        _hover={{
+          borderColor: "#58a6ff",
+          transform: "translateY(-2px)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+        }}
+        role="group"
       >
         <Flex justify="space-between" align="flex-start">
           <HStack gap={2} mb={2}>
@@ -27,7 +32,13 @@ export function ActivityCard({ owner, repo }: Props) {
               Activity Monitor
             </Text>
           </HStack>
-          <FaArrowRight color="#8b949e" />
+          <Box
+            color="#8b949e"
+            transition="all 0.2s ease"
+            _groupHover={{ transform: "translateX(4px)", color: "#c9d1d9" }}
+          >
+            <FaArrowRight />
+          </Box>
         </Flex>
         <Text color="#8b949e" fontSize="sm">
           Anomaly detection for commits
