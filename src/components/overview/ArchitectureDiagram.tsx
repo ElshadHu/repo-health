@@ -18,6 +18,7 @@ import {
   FaPlus,
   FaMinus,
   FaCompress,
+  FaDownload,
 } from "react-icons/fa";
 import * as d3 from "d3";
 import { FileDetailsPanel } from "./FileDetailsPanel";
@@ -116,6 +117,58 @@ export function ArchitectureDiagram({
   const [highlightedPath, setHighlightedPath] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
 
+  const handleDownload = useCallback(() => {
+    if (!svgRef.current) {
+      return;
+    }
+
+    const svgElement = svgRef.current.cloneNode(true) as SVGSVGElement;
+
+    svgElement.style.backgroundColor = "#161b22";
+
+    const background = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "rect"
+    );
+
+    // Get viewBox dimensions
+    const viewBox = svgRef.current.getAttribute("viewBox");
+    let x = "0";
+    let y = "0";
+    let width = svgRef.current.getAttribute("width") || "1200";
+    let height = svgRef.current.getAttribute("height") || "600";
+
+    if (viewBox) {
+      const [vbX, vbY, vbWidth, vbHeight] = viewBox.split(" ");
+      x = vbX;
+      y = vbY;
+      width = vbWidth;
+      height = vbHeight;
+    }
+
+    background.setAttribute("x", x);
+    background.setAttribute("y", y);
+    background.setAttribute("width", width);
+    background.setAttribute("height", height);
+    background.setAttribute("fill", "#161b22");
+
+    svgElement.insertBefore(background, svgElement.firstChild);
+
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svgElement);
+
+    const blob = new Blob([source], {
+      type: "image/svg+xml; charset=utf-8",
+    });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `${repo}-file-structure.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [repo]);
   const handleZoomIn = useCallback((): void => {
     if (!svgRef.current || !zoomRef.current) {
       return;
@@ -508,6 +561,18 @@ export function ArchitectureDiagram({
               onClick={handleZoomReset}
             >
               <FaCompress size={10} />
+            </IconButton>
+            <Box w="1px" h="16px" bg="#30363d" mx={1} />
+            <IconButton
+              aria-label="Download SVG"
+              title="Download SVG"
+              size="xs"
+              variant="ghost"
+              color="#8b949e"
+              _hover={{ bg: "#30363d", color: "#c9d1d9" }}
+              onClick={handleDownload}
+            >
+              <FaDownload size={10} />
             </IconButton>
           </HStack>
         </HStack>
