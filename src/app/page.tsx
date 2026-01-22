@@ -7,10 +7,7 @@ import {
   VStack,
   SimpleGrid,
   Text,
-  createToaster,
-  Toaster,
   Flex,
-  Button,
   Spinner,
 } from "@chakra-ui/react";
 import { useSession, signIn } from "next-auth/react";
@@ -29,12 +26,7 @@ import { ProjectOverviewSection } from "@/components/overview";
 import { PitfallsSummaryCard } from "@/components/contributor/PitfallsSummaryCard";
 import { SetupSummaryCard } from "@/components/setup/SetupSummaryCard";
 import { useSearchParams, useRouter } from "next/navigation";
-
-const toaster = createToaster({
-  placement: "top",
-  duration: 5000,
-  max: 2,
-});
+import { ToastContainer, toaster, showToast } from "@/components/Toast";
 
 function HomePageContent() {
   const { status } = useSession();
@@ -103,17 +95,16 @@ function HomePageContent() {
           ? "Repository not found. It might be private - sign in to access private repositories."
           : "Repository not found or you don't have access to it.";
 
-        const toastId = toaster.create({
-          title: "Error",
-          description: errorMessage,
-          type: "error",
-          action: isNotAuthenticated
+        const toastId = showToast.error(
+          "Error",
+          errorMessage,
+          isNotAuthenticated
             ? {
                 label: "Sign in",
                 onClick: () => signIn("github"),
               }
-            : undefined,
-        });
+            : undefined
+        );
 
         if (isNotAuthenticated) {
           document.body.classList.add("show-signin-guide");
@@ -158,15 +149,14 @@ function HomePageContent() {
           const minutes = Math.ceil(
             (rateLimitCheck.retryAfterSeconds || 0) / 60
           );
-          const toastId = toaster.create({
-            title: "Free search used",
-            description: `One more step! Sign in with GitHub to keep searching, or come back in ${minutes} minute${minutes !== 1 ? "s" : ""}.`,
-            type: "info",
-            action: {
+          const toastId = showToast.info(
+            "Free search used",
+            `One more step! Sign in with GitHub to keep searching, or come back in ${minutes} minute${minutes !== 1 ? "s" : ""}.`,
+            {
               label: "Sign in",
               onClick: () => signIn("github"),
-            },
-          });
+            }
+          );
 
           // Highlight the header sign-in button briefly so users notice where to sign in
           document.body.classList.add("show-signin-guide");
@@ -226,58 +216,7 @@ function HomePageContent() {
             )}
           </Flex>
 
-          <Toaster toaster={toaster}>
-            {(toast) => (
-              <Box position="relative">
-                {/* If toast has a sign-in action, show a small arrow pointing upwards to guide the user */}
-                {toast.action &&
-                  toast.action.label?.toLowerCase().includes("sign") && (
-                    <Box
-                      position="absolute"
-                      left="50%"
-                      transform="translateX(-50%) translateY(-8px)"
-                      top="-12px"
-                      width={0}
-                      height={0}
-                      borderLeft="8px solid transparent"
-                      borderRight="8px solid transparent"
-                      borderBottom="8px solid rgba(0,0,0,0.6)"
-                      zIndex={10}
-                    />
-                  )}
-
-                <Box
-                  bg={toast.type === "error" ? "red.500" : "green.500"}
-                  color="white"
-                  p={4}
-                  borderRadius="md"
-                  boxShadow="lg"
-                  display="flex"
-                  alignItems="center"
-                  gap={4}
-                >
-                  <Box flex="1">
-                    <Text fontWeight="bold">{toast.title}</Text>
-                    {toast.description && (
-                      <Text fontSize="sm">{toast.description}</Text>
-                    )}
-                  </Box>
-
-                  {/* Prominent action button */}
-                  {toast.action && (
-                    <Button
-                      size="sm"
-                      colorScheme="blue"
-                      onClick={() => toast.action?.onClick?.()}
-                      _hover={{ opacity: 0.95 }}
-                    >
-                      {toast.action.label}
-                    </Button>
-                  )}
-                </Box>
-              </Box>
-            )}
-          </Toaster>
+          <ToastContainer />
 
           {isLoading && <LoadingState />}
           {data && !isLoading && (
