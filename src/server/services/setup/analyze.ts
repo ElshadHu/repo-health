@@ -17,6 +17,11 @@ import {
   getDockerQuickStartCommands,
   getDockerSetupSteps,
 } from "./dockerAnalyzer";
+import {
+  analyzeGo,
+  getGoQuickStartCommands,
+  getGoSetupSteps,
+} from "./goAnalyzer";
 import { analyzeCIFailures } from "./ciAnalyzer";
 import { analyzeSetupWithAI } from "./aiAnalyzer";
 import type { SetupInsights, CriticalIssue } from "../../types/setup";
@@ -38,6 +43,9 @@ export async function analyzeSetup(
       break;
     case "python":
       criticalIssues = analyzePython(files);
+      break;
+    case "go":
+      criticalIssues = analyzeGo(files);
       break;
   }
 
@@ -112,6 +120,9 @@ function generateQuickStartCommand(
     case "python":
       commands.push(...getPythonQuickStartCommands(files));
       break;
+    case "go":
+      commands.push(...getGoQuickStartCommands(files));
+      break;
   }
 
   return commands.length > 0 ? { command: commands.join(" && ") } : undefined;
@@ -132,13 +143,17 @@ function generateSetupSteps(
     case "python":
       ecosystemSteps = getPythonSetupSteps(files);
       break;
+    case "go":
+      ecosystemSteps = getGoSetupSteps(files);
+      break;
   }
 
   // Separate prerequisites from other steps
   const prerequisites = ecosystemSteps.filter(
     (s) =>
       s.includes("Install Node.js") ||
-      (s.includes("Python") && s.includes("required"))
+      (s.includes("Python") && s.includes("required")) ||
+      s.includes("Install Go")
   );
   const postCloneSteps = ecosystemSteps.filter(
     (s) => !prerequisites.includes(s)
