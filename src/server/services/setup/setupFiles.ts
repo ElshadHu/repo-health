@@ -34,24 +34,30 @@ type GraphQLResponse = {
   };
 };
 
-function detectEcosystem(data: GraphQLResponse["repository"]): Ecosystem {
+function detectEcosystem(data: GraphQLResponse["repository"]): Ecosystem[] {
+  const ecosystems: Ecosystem[] = [];
   // Check for config files first
-  if (data.packageJson) return "node";
+  if (data.packageJson) ecosystems.push("node");
   if (data.requirementsTxt || data.pyprojectToml || data.setupPy)
-    return "python";
-  if (data.goMod) return "go";
-  if (data.cargoToml) return "rust";
-  if (data.globalJson) return "csharp";
-  if (data.cmakeLists || data.vcpkgJson || data.makefile) return "cpp";
-  // Fallback to primary language
-  const lang = data.primaryLanguage?.name?.toLowerCase();
-  if (lang === "javascript" || lang === "typescript") return "node";
-  if (lang === "python") return "python";
-  if (lang === "go") return "go";
-  if (lang === "rust") return "rust";
-  if (lang === "c#") return "csharp";
-  if (lang === "c++" || lang === "c") return "cpp";
-  return "unknown";
+    ecosystems.push("python");
+  if (data.goMod) ecosystems.push("go");
+  if (data.cargoToml) ecosystems.push("rust");
+  if (data.globalJson) ecosystems.push("csharp");
+  if (data.cmakeLists || data.vcpkgJson || data.makefile)
+    ecosystems.push("cpp");
+  // Fallback to primary language only if no config files detected
+  if (ecosystems.length === 0) {
+    const lang = data.primaryLanguage?.name?.toLowerCase();
+    if (lang === "javascript" || lang === "typescript") ecosystems.push("node");
+    else if (lang === "python") ecosystems.push("python");
+    else if (lang === "go") ecosystems.push("go");
+    else if (lang === "rust") ecosystems.push("rust");
+    else if (lang === "c#") ecosystems.push("csharp");
+    else if (lang === "c++" || lang === "c") ecosystems.push("cpp");
+    else ecosystems.push("unknown");
+  }
+
+  return ecosystems;
 }
 
 export async function fetchSetupFiles(
