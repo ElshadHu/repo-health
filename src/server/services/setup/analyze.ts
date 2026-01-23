@@ -37,16 +37,18 @@ export async function analyzeSetup(
   const envVars = parseEnvExample(files.envExample);
 
   let criticalIssues: CriticalIssue[] = [];
-  switch (files.ecosystem) {
-    case "node":
-      criticalIssues = analyzeNode(files);
-      break;
-    case "python":
-      criticalIssues = analyzePython(files);
-      break;
-    case "go":
-      criticalIssues = analyzeGo(files);
-      break;
+  for (const eco of files.ecosystem) {
+    switch (eco) {
+      case "node":
+        criticalIssues.push(...analyzeNode(files));
+        break;
+      case "python":
+        criticalIssues.push(...analyzePython(files));
+        break;
+      case "go":
+        criticalIssues.push(...analyzeGo(files));
+        break;
+    }
   }
 
   const dockerIssues = analyzeDocker(files);
@@ -113,16 +115,18 @@ function generateQuickStartCommand(
   commands.push(...getDockerQuickStartCommands(files));
 
   // Add ecosystem-specific commands
-  switch (files.ecosystem) {
-    case "node":
-      commands.push(...getNodeQuickStartCommands(files));
-      break;
-    case "python":
-      commands.push(...getPythonQuickStartCommands(files));
-      break;
-    case "go":
-      commands.push(...getGoQuickStartCommands(files));
-      break;
+  for (const eco of files.ecosystem) {
+    switch (eco) {
+      case "node":
+        commands.push(...getNodeQuickStartCommands(files));
+        break;
+      case "python":
+        commands.push(...getPythonQuickStartCommands(files));
+        break;
+      case "go":
+        commands.push(...getGoQuickStartCommands(files));
+        break;
+    }
   }
 
   return commands.length > 0 ? { command: commands.join(" && ") } : undefined;
@@ -136,16 +140,18 @@ function generateSetupSteps(
 
   // Get ecosystem-specific steps
   let ecosystemSteps: string[] = [];
-  switch (files.ecosystem) {
-    case "node":
-      ecosystemSteps = getNodeSetupSteps(files);
-      break;
-    case "python":
-      ecosystemSteps = getPythonSetupSteps(files);
-      break;
-    case "go":
-      ecosystemSteps = getGoSetupSteps(files);
-      break;
+  for (const eco of files.ecosystem) {
+    switch (eco) {
+      case "node":
+        ecosystemSteps.push(...getNodeSetupSteps(files));
+        break;
+      case "python":
+        ecosystemSteps.push(...getPythonSetupSteps(files));
+        break;
+      case "go":
+        ecosystemSteps.push(...getGoSetupSteps(files));
+        break;
+    }
   }
 
   // Separate prerequisites from other steps

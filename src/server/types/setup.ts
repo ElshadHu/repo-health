@@ -35,7 +35,7 @@ export type Ecosystem =
   | "unknown";
 
 export type SetupFilesResult = {
-  ecosystem: Ecosystem;
+  ecosystem: Ecosystem[];
   contributing: string | null;
   readme: string | null;
   envExample: string | null;
