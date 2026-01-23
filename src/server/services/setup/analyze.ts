@@ -36,7 +36,7 @@ export async function analyzeSetup(
   const { prerequisites } = parseContributing(files.contributing);
   const envVars = parseEnvExample(files.envExample);
 
-  let criticalIssues: CriticalIssue[] = [];
+  const criticalIssues: CriticalIssue[] = [];
   for (const eco of files.ecosystem) {
     switch (eco) {
       case "node":
@@ -139,7 +139,7 @@ function generateSetupSteps(
   const steps: string[] = [];
 
   // Get ecosystem-specific steps
-  let ecosystemSteps: string[] = [];
+  const ecosystemSteps: string[] = [];
   for (const eco of files.ecosystem) {
     switch (eco) {
       case "node":
