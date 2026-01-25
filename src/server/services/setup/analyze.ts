@@ -22,6 +22,21 @@ import {
   getGoQuickStartCommands,
   getGoSetupSteps,
 } from "./goAnalyzer";
+import {
+  analyzeRust,
+  getRustQuickStartCommands,
+  getRustSetupSteps,
+} from "./rustAnalyzer";
+import {
+  analyzeCSharp,
+  getCSharpQuickStartCommands,
+  getCSharpSetupSteps,
+} from "./csharpAnalyzer";
+import {
+  analyzeCpp,
+  getCppQuickStartCommands,
+  getCppSetupSteps,
+} from "./cppAnalyzer";
 import { analyzeCIFailures } from "./ciAnalyzer";
 import { analyzeSetupWithAI } from "./aiAnalyzer";
 import type { SetupInsights, CriticalIssue } from "../../types/setup";
@@ -47,6 +62,15 @@ export async function analyzeSetup(
         break;
       case "go":
         criticalIssues.push(...analyzeGo(files));
+        break;
+      case "rust":
+        criticalIssues.push(...analyzeRust(files));
+        break;
+      case "csharp":
+        criticalIssues.push(...analyzeCSharp(files));
+        break;
+      case "cpp":
+        criticalIssues.push(...analyzeCpp(files));
         break;
     }
   }
@@ -126,6 +150,15 @@ function generateQuickStartCommand(
       case "go":
         commands.push(...getGoQuickStartCommands(files));
         break;
+      case "rust":
+        commands.push(...getRustQuickStartCommands(files));
+        break;
+      case "csharp":
+        commands.push(...getCSharpQuickStartCommands(files));
+        break;
+      case "cpp":
+        commands.push(...getCppQuickStartCommands(files));
+        break;
     }
   }
 
@@ -151,6 +184,15 @@ function generateSetupSteps(
       case "go":
         ecosystemSteps.push(...getGoSetupSteps(files));
         break;
+      case "rust":
+        ecosystemSteps.push(...getRustSetupSteps(files));
+        break;
+      case "csharp":
+        ecosystemSteps.push(...getCSharpSetupSteps(files));
+        break;
+      case "cpp":
+        ecosystemSteps.push(...getCppSetupSteps(files));
+        break;
     }
   }
 
@@ -159,7 +201,11 @@ function generateSetupSteps(
     (s) =>
       s.includes("Install Node.js") ||
       (s.includes("Python") && s.includes("required")) ||
-      s.includes("Install Go")
+      s.includes("Install Go") ||
+      s.includes("Install Rust") ||
+      s.includes(".NET SDK") ||
+      s.includes("Install CMake") ||
+      s.includes("C++ compiler")
   );
   const postCloneSteps = ecosystemSteps.filter(
     (s) => !prerequisites.includes(s)
