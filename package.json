@@ -39,7 +39,7 @@
     "js-yaml": "^4.1.1",
     "lucide-react": "^0.561.0",
     "mariadb": "^3.4.5",
-    "next": "16.0.10",
+    "next": "^16.1.6",
     "next-auth": "^5.0.0-beta.30",
     "openai": "^6.15.0",
     "react": "19.2.1",
